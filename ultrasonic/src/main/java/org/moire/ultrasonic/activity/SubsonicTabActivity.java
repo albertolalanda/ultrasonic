@@ -32,26 +32,54 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
-import android.view.*;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.*;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RemoteViews;
+import android.widget.TextView;
+
 import net.simonvt.menudrawer.MenuDrawer;
 import net.simonvt.menudrawer.Position;
+
 import org.moire.ultrasonic.R;
-import org.moire.ultrasonic.app.UApp;
 import org.moire.ultrasonic.domain.MusicDirectory;
 import org.moire.ultrasonic.domain.MusicDirectory.Entry;
 import org.moire.ultrasonic.domain.PlayerState;
 import org.moire.ultrasonic.domain.Share;
-import org.moire.ultrasonic.featureflags.Feature;
-import org.moire.ultrasonic.service.*;
-import org.moire.ultrasonic.subsonic.SubsonicImageLoaderProxy;
-import org.moire.ultrasonic.util.*;
+import org.moire.ultrasonic.service.DownloadFile;
+import org.moire.ultrasonic.service.DownloadService;
+import org.moire.ultrasonic.service.DownloadServiceImpl;
+import org.moire.ultrasonic.service.MusicService;
+import org.moire.ultrasonic.service.MusicServiceFactory;
+import org.moire.ultrasonic.util.BackgroundTask;
+import org.moire.ultrasonic.util.Constants;
+import org.moire.ultrasonic.util.EntryByDiscAndTrackComparator;
+import org.moire.ultrasonic.util.ImageLoader;
+import org.moire.ultrasonic.util.ModalBackgroundTask;
+import org.moire.ultrasonic.util.ShareDetails;
+import org.moire.ultrasonic.util.SilentBackgroundTask;
+import org.moire.ultrasonic.util.TabActivityBackgroundTask;
+import org.moire.ultrasonic.util.TimeSpan;
+import org.moire.ultrasonic.util.TimeSpanPicker;
+import org.moire.ultrasonic.util.Util;
+import org.moire.ultrasonic.util.VideoPlayerType;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -95,6 +123,7 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 		applyTheme();
 		super.onCreate(bundle);
 
+
 		startService(new Intent(this, DownloadServiceImpl.class));
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -107,18 +136,18 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 		menuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
 		menuDrawer.setMenuView(R.layout.menu_main);
 
-		chatMenuItem = findViewById(R.id.menu_chat);
-		bookmarksMenuItem = findViewById(R.id.menu_bookmarks);
-		sharesMenuItem = findViewById(R.id.menu_shares);
+		//chatMenuItem = findViewById(R.id.menu_chat);
+		//bookmarksMenuItem = findViewById(R.id.menu_bookmarks);
+		//sharesMenuItem = findViewById(R.id.menu_shares);
 
 		findViewById(R.id.menu_home).setOnClickListener(this);
 		findViewById(R.id.menu_browse).setOnClickListener(this);
 		findViewById(R.id.menu_search).setOnClickListener(this);
-		findViewById(R.id.menu_playlists).setOnClickListener(this);
-		findViewById(R.id.menu_podcasts).setOnClickListener(this);
-		sharesMenuItem.setOnClickListener(this);
-		chatMenuItem.setOnClickListener(this);
-		bookmarksMenuItem.setOnClickListener(this);
+		//findViewById(R.id.menu_playlists).setOnClickListener(this);
+		//findViewById(R.id.menu_podcasts).setOnClickListener(this);
+		//sharesMenuItem.setOnClickListener(this);
+		//chatMenuItem.setOnClickListener(this);
+		//bookmarksMenuItem.setOnClickListener(this);
 		findViewById(R.id.menu_now_playing).setOnClickListener(this);
 		findViewById(R.id.menu_settings).setOnClickListener(this);
 		findViewById(R.id.menu_about).setOnClickListener(this);
@@ -139,10 +168,10 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 		super.onPostCreate(bundle);
 		instance = this;
 
-		int visibility = Util.isOffline(this) ? View.GONE : View.VISIBLE;
-		chatMenuItem.setVisibility(visibility);
-		bookmarksMenuItem.setVisibility(visibility);
-		sharesMenuItem.setVisibility(visibility);
+		//int visibility = Util.isOffline(this) ? View.GONE : View.VISIBLE;
+		//chatMenuItem.setVisibility(visibility);
+		//bookmarksMenuItem.setVisibility(visibility);
+		//sharesMenuItem.setVisibility(visibility);
 	}
 
 	@Override
@@ -291,6 +320,7 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 
 	private void applyTheme()
 	{
+		//THEME LALANDA TODO HERE YOU SHOULD PUT THE DRAWABLES AND COLORS FOR BOTH THEMES
 		String theme = Util.getTheme(this);
 
 		if ("dark".equalsIgnoreCase(theme) || "fullscreen".equalsIgnoreCase(theme))
@@ -791,39 +821,21 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 		}
 	}
 
-    public synchronized void clearImageLoader() {
-        if (IMAGE_LOADER != null &&
-                IMAGE_LOADER.isRunning()) {
-            IMAGE_LOADER.clear();
-        }
+	public synchronized void clearImageLoader()
+	{
+		if (IMAGE_LOADER != null && IMAGE_LOADER.isRunning()) IMAGE_LOADER.clear();
+	}
 
-        IMAGE_LOADER = null;
-    }
+	public synchronized ImageLoader getImageLoader()
+	{
+		if (IMAGE_LOADER == null || !IMAGE_LOADER.isRunning())
+		{
+			IMAGE_LOADER = new ImageLoader(this, Util.getImageLoaderConcurrency(this));
+			IMAGE_LOADER.startImageLoader();
+		}
 
-    public synchronized ImageLoader getImageLoader() {
-        if (IMAGE_LOADER == null ||
-                !IMAGE_LOADER.isRunning()) {
-            LegacyImageLoader legacyImageLoader = new LegacyImageLoader(
-                    this,
-                    Util.getImageLoaderConcurrency(this)
-            );
-
-            boolean isNewImageLoaderEnabled = ((UApp) getApplication()).getFeaturesStorage()
-                    .isFeatureEnabled(Feature.NEW_IMAGE_DOWNLOADER);
-            if (isNewImageLoaderEnabled) {
-                IMAGE_LOADER = new SubsonicImageLoaderProxy(
-                        legacyImageLoader,
-                        ((UApp) getApplication()).getSubsonicImageLoader()
-                );
-            } else {
-                IMAGE_LOADER = legacyImageLoader;
-            }
-
-            IMAGE_LOADER.startImageLoader();
-        }
-
-        return IMAGE_LOADER;
-    }
+		return IMAGE_LOADER;
+	}
 
 	void download(final boolean append, final boolean save, final boolean autoPlay, final boolean playNext, final boolean shuffle, final List<Entry> songs)
 	{
@@ -839,6 +851,19 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 			{
 				if (!append && !playNext)
 				{
+					//LALANDA CLEAR OLD PLAYLIST SEEMS TO WORK //STILL NEED TO DO IT FOR SHUFFLE
+					final List<MusicDirectory.Entry> oldPlaylistSongs = new LinkedList<MusicDirectory.Entry>();
+					for (final DownloadFile downloadFile : getDownloadService().getSongs())
+					{
+						oldPlaylistSongs.add(downloadFile.getSong());
+					}
+					if (getDownloadService() != null && oldPlaylistSongs.isEmpty())
+					{
+						getDownloadService().delete(oldPlaylistSongs);
+
+					}
+					getDownloadService().delete(songs);
+					//----------------------------------------------------------------------
 					getDownloadService().clear();
 				}
 
@@ -1264,6 +1289,7 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 		}
 	}
 
+	//TODO LALANDA AQUI SÃO OS CLIQUES
 	@Override
 	public void onClick(View v)
 	{
@@ -1289,27 +1315,27 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 				intent.putExtra(Constants.INTENT_EXTRA_REQUEST_SEARCH, true);
 				startActivityForResultWithoutTransition(SubsonicTabActivity.this, intent);
 				break;
-			case R.id.menu_playlists:
-				intent = new Intent(SubsonicTabActivity.this, SelectPlaylistActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivityForResultWithoutTransition(SubsonicTabActivity.this, intent);
-				break;
-			case R.id.menu_podcasts:
+//			case R.id.menu_playlists:
+//				intent = new Intent(SubsonicTabActivity.this, SelectPlaylistActivity.class);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//				startActivityForResultWithoutTransition(SubsonicTabActivity.this, intent);
+//				break;
+			/*case R.id.menu_podcasts:
 				intent = new Intent(SubsonicTabActivity.this, PodcastsActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivityForResultWithoutTransition(SubsonicTabActivity.this, intent);
-				break;
-			case R.id.menu_shares:
+				break;*/
+			/*case R.id.menu_shares:
 				intent = new Intent(SubsonicTabActivity.this, ShareActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivityForResultWithoutTransition(SubsonicTabActivity.this, intent);
-				break;
-			case R.id.menu_chat:
+				break;*/
+			/*case R.id.menu_chat:
 				startActivityForResultWithoutTransition(SubsonicTabActivity.this, ChatActivity.class);
-				break;
-			case R.id.menu_bookmarks:
-				startActivityForResultWithoutTransition(this, BookmarkActivity.class);
-				break;
+				break;*/
+//			case R.id.menu_bookmarks:
+//				startActivityForResultWithoutTransition(this, BookmarkActivity.class);
+//				break;
 			case R.id.menu_now_playing:
 				startActivityForResultWithoutTransition(SubsonicTabActivity.this, DownloadActivity.class);
 				break;
@@ -1382,18 +1408,21 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 				{
 					downX = event.getX();
 					downY = event.getY();
+					System.out.println("ACTION DOWN");
 					return false;
 				}
 				case MotionEvent.ACTION_UP:
 				{
 					upX = event.getX();
 					upY = event.getY();
+					System.out.println("ACTION UP");
 
 					float deltaX = downX - upX;
 					float deltaY = downY - upY;
 
 					if (Math.abs(deltaX) > MIN_DISTANCE)
 					{
+						System.out.println("ACTION IF");
 						// left or right
 						if (deltaX < 0)
 						{
@@ -1408,6 +1437,7 @@ public class SubsonicTabActivity extends ResultActivity implements OnClickListen
 					}
 					else if (Math.abs(deltaY) > MIN_DISTANCE)
 					{
+						System.out.println("ACTION ELSE IF");
 						if (deltaY < 0)
 						{
 							SubsonicTabActivity.nowPlayingHidden = true;

@@ -66,6 +66,7 @@ public class MediaStoreService
 		values.put(MediaStore.MediaColumns.MIME_TYPE, song.getContentType());
 		values.put(MediaStore.Audio.AudioColumns.IS_MUSIC, 1);
 
+
 		Uri uri = contentResolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
 
 		if (uri != null)

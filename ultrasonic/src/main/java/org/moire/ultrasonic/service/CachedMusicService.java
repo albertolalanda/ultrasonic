@@ -21,6 +21,7 @@ package org.moire.ultrasonic.service;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import org.moire.ultrasonic.api.subsonic.models.LastIdUser;
 import org.moire.ultrasonic.domain.Bookmark;
 import org.moire.ultrasonic.domain.ChatMessage;
 import org.moire.ultrasonic.domain.Genre;
@@ -234,7 +235,6 @@ public class CachedMusicService implements MusicService
 		return musicService.getPodcastEpisodes(podcastChannelId,context,progressListener);
 	}
 
-
 	@Override
 	public List<Playlist> getPlaylists(boolean refresh, Context context, ProgressListener progressListener) throws Exception
 	{
@@ -368,6 +368,7 @@ public class CachedMusicService implements MusicService
 		String newUrl = Util.getRestUrl(context, null);
 		if (!Util.equals(newUrl, restUrl))
 		{
+			///LALANDA CACHE
 			cachedMusicFolders.clear();
 			cachedMusicDirectories.clear();
 			cachedLicenseValid.clear();
@@ -523,4 +524,25 @@ public class CachedMusicService implements MusicService
 		return musicService.getAvatar(context, username, size, saveToFile, highQuality, progressListener);
 	}
 
+	//LALANDA TIAGO REST
+
+	@Override
+	public LastIdUser getLastIdUserQoE(Context context, ProgressListener progressListener) throws Exception {
+		 return musicService.getLastIdUserQoE(context, progressListener);
+	}
+
+	@Override
+	public boolean setUserInformation(Context context, int id, int age, String gender, String genres, ProgressListener progressListener) throws Exception {
+		return musicService.setUserInformation(context, id, age, gender, genres, progressListener);
+	}
+
+	@Override
+	public boolean setCreateRatingQoE(Context context, int numberOfPlaylist, int idUser_MyMusicQoE, int idMediaFile, int idTranscoding, boolean headphones, int rating, ProgressListener progressListener) throws Exception {
+		return musicService.setCreateRatingQoE(context, numberOfPlaylist, idUser_MyMusicQoE, idMediaFile, idTranscoding, headphones, rating, progressListener);
+	}
+
+	@Override
+	public boolean setUpdateRatingQoE(Context context, int numberOfPlaylist, int idUser_MyMusicQoE, int idMediaFile, int idTranscoding, boolean headphones, int rating, ProgressListener progressListener) throws Exception {
+		return musicService.setUpdateRatingQoE(context, numberOfPlaylist, idUser_MyMusicQoE, idMediaFile, idTranscoding, headphones, rating, progressListener);
+	}
 }

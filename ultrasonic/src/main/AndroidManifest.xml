@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.moire.ultrasonic"
-          android:installLocation="auto">
+    package="org.moire.ultrasonic"
+    android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
 
     <supports-screens
         android:anyDensity="true"
@@ -17,18 +19,21 @@
         android:normalScreens="true"
         android:smallScreens="true"
         android:xlargeScreens="true"/>
-
+    <!--next 2 lines -->
+    <!--was false-->
+    <!--added the next 1 LALANDA! SE HOUVER PROBLEMA VIR AQUI VER SE É A RAZÃO-->
     <application
-        android:allowBackup="false"
+        android:allowBackup="true"
+        android:largeHeap="true"
+
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.AppCompat"
-        android:name=".app.UApp"
         android:label="@string/common.appname">
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:label="UltraSonic"
+            android:label="MyMusicQoE"
             android:launchMode="standard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -47,32 +52,38 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/search.label"
             android:launchMode="singleTask"/>
-        <activity
-            android:name=".activity.SelectPlaylistActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/playlist.label"
-            android:launchMode="standard"/>
-        <activity
-            android:name=".activity.PodcastsActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/podcasts.label"
-            android:launchMode="standard"/>
+        <!--<activity-->
+            <!--android:name=".activity.SelectPlaylistActivity"-->
+            <!--android:configChanges="orientation|keyboardHidden"-->
+            <!--android:label="@string/playlist.label"-->
+            <!--android:launchMode="standard"/>-->
+        <!--<activity-->
+            <!--a:name=".activity.PodcastsActivity"-->
+            <!--a:configChanges="orientation|keyboardHidden"-->
+            <!--a:label="@string/podcasts.label"-->
+            <!--a:launchMode="standard"/>-->
         <activity
             android:name=".activity.BookmarkActivity"
             android:configChanges="orientation|keyboardHidden"/>
-        <activity
-            android:name=".activity.ShareActivity"
-            android:configChanges="orientation|keyboardHidden"/>
-        <activity
-            android:name=".activity.ChatActivity"
-            android:configChanges="orientation|keyboardHidden"/>
+        <!--<activity-->
+            <!--a:name=".activity.ShareActivity"-->
+            <!--a:configChanges="orientation|keyboardHidden"/>-->
+        <!--<activity-->
+            <!--a:name=".activity.ChatActivity"-->
+            <!--a:configChanges="orientation|keyboardHidden"/>-->
         <activity
             android:name=".activity.DownloadActivity"
+            android:screenOrientation="portrait"
             android:configChanges="keyboardHidden"
             android:launchMode="singleTask"
             android:exported="true" />
         <activity
             android:name=".activity.SettingsActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name=".activity.UserInformationActivity"
+            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"/>
         <activity

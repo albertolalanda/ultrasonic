@@ -13,8 +13,6 @@ dependencies {
     api other.kotlinStdlib
     api other.retrofit
     api other.jacksonConverter
-    api other.koinCore
-
     implementation(other.jacksonKotlin) {
         exclude module: 'kotlin-reflect'
     }
@@ -38,8 +36,7 @@ jacoco {
 ext {
     // Excluding data classes
     jacocoExclude = [
-            '**/models/**',
-            '**/di/**'
+            '**/models/**'
     ]
 }
 

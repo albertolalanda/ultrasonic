@@ -22,16 +22,18 @@ package org.moire.ultrasonic.util;
  * @author Sindre Mehus
  * @version $Id$
  */
+//LALANDA CONSTANTS
 public final class Constants
 {
-
 	// Character encoding used throughout.
 	public static final String UTF_8 = "UTF-8";
 
 	// REST protocol version and client ID.
 	// Note: Keep it as low as possible to maintain compatibility with older servers.
 	public static final String REST_PROTOCOL_VERSION = "1.7.0";
-	public static final String REST_CLIENT_ID = "Ultrasonic";
+
+	// this will be changed according to API level of the client OS
+	public static final String REST_CLIENT_ID = "MyMusicQoE";
 
 	// Names for intent extras.
 	public static final String INTENT_EXTRA_NAME_ID = "subsonic.id";
@@ -60,8 +62,16 @@ public final class Constants
 	public static final String INTENT_EXTRA_NAME_IS_ALBUM = "subsonic.isalbum";
 	public static final String INTENT_EXTRA_NAME_VIDEOS = "subsonic.videos";
 
-	// Notification IDs.
-	public static final int NOTIFICATION_ID_PLAYING = 100;
+	// User preferences.
+	public static final String USER_ID = "myMusicQoE.userId";
+	public static final String USER_SEX = "myMusicQoE.userSex";
+	public static final String USER_AGE = "myMusicQoE.userAge";
+	public static final String USER_FAVORITE_GENRES = "myMusicQoE.userFavoriteGenres";
+	public static final String USER_NUMBER_OF_FAVORITE_GENRES = "myMusicQoE.userNumberFavoriteGenres";
+
+	// Other user constants.
+	public static final String USER_NUMBER_OF_PLAYLIST = "myMusicQoE.userNumberOfPlaylist";
+	public static final String USER_INFORMATION_IS_SENT = "myMusicQoE.userInformationIsSent";
 
 	// Preferences keys.
 	public static final String PREFERENCES_KEY_SERVER = "server";
@@ -130,7 +140,6 @@ public final class Constants
 	public static final String PREFERENCES_KEY_SHOW_ALL_SONGS_BY_ARTIST = "showAllSongsByArtist";
 	public static final String PREFERENCES_KEY_SCAN_MEDIA = "scanMedia";
 	public static final String PREFERENCES_KEY_IMAGE_LOADER_CONCURRENCY = "imageLoaderConcurrency";
-	public static final String PREFERENCES_KEY_FF_IMAGE_LOADER = "ff_new_image_loader";
 
 	// Number of free trial days for non-licensed servers.
 	public static final int FREE_TRIAL_DAYS = 30;

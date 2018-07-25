@@ -8,13 +8,12 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
+import org.jetbrains.annotations.Nullable;
 import org.moire.ultrasonic.BuildConfig;
 import org.moire.ultrasonic.R;
-import org.moire.ultrasonic.cache.Directories;
 import org.moire.ultrasonic.cache.PermanentFileStorage;
 import org.moire.ultrasonic.service.MusicService;
 import org.moire.ultrasonic.service.MusicServiceFactory;
@@ -28,9 +27,9 @@ import java.net.URL;
 /**
  * Settings for Subsonic server.
  */
-public class ServerSettingsFragment extends PreferenceFragment
-        implements Preference.OnPreferenceChangeListener,
-        Preference.OnPreferenceClickListener {
+//LALANDA EDITING OF A SPECIFIC SERVER
+//THIS WILL BE UNUSED
+public class ServerSettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
     private static final String LOG_TAG = ServerSettingsFragment.class.getSimpleName();
     private static final String ARG_SERVER_ID = "serverId";
 
@@ -53,6 +52,9 @@ public class ServerSettingsFragment extends PreferenceFragment
         final Bundle args = new Bundle();
         args.putInt(ARG_SERVER_ID, serverId);
         fragment.setArguments(args);
+        //LALANDA TESTE VERIFICAR ID DO SERVER
+        System.out.println("SERVERSETTINGSFRAGMENT - SERVER ID = " + serverId);
+        //---------//
 
         return fragment;
     }
@@ -79,22 +81,18 @@ public class ServerSettingsFragment extends PreferenceFragment
         jukeboxPref = (CheckBoxPreference) findPreference(getString(R.string.jukebox_is_default));
         removeServerPref = findPreference(getString(R.string.settings_server_remove_server));
         testConnectionPref = findPreference(getString(R.string.settings_test_connection_title));
-        allowSelfSignedCertificatePref = (CheckBoxPreference) findPreference(
-                getString(R.string.settings_allow_self_signed_certificate));
-        enableLdapUserSupportPref = (CheckBoxPreference) findPreference(
-                getString(R.string.settings_enable_ldap_user_support)
-        );
+        allowSelfSignedCertificatePref = (CheckBoxPreference) findPreference(getString(R.string.settings_allow_self_signed_certificate));
+        enableLdapUserSupportPref = (CheckBoxPreference) findPreference(getString(R.string.settings_enable_ldap_user_support));
 
         setupPreferencesValues();
         setupPreferencesListeners();
     }
 
+    //LALANDA SHARED PREFERENCES CHANGE COMMIT
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference == serverNamePref) {
-            sharedPreferences.edit()
-                    .putString(Constants.PREFERENCES_KEY_SERVER_NAME + serverId, (String) newValue)
-                    .apply();
+            sharedPreferences.edit().putString(Constants.PREFERENCES_KEY_SERVER_NAME + serverId, (String) newValue).apply();
             updateName();
             return true;
         } else if (preference == serverUrlPref) {
@@ -109,9 +107,7 @@ public class ServerSettingsFragment extends PreferenceFragment
                 return false;
             }
 
-            sharedPreferences.edit()
-                    .putString(Constants.PREFERENCES_KEY_SERVER_URL + serverId, url)
-                    .apply();
+            sharedPreferences.edit().putString(Constants.PREFERENCES_KEY_SERVER_URL + serverId, url).apply();
             updateUrl();
             return true;
         } else if (preference == serverUsernamePref) {
@@ -121,36 +117,24 @@ public class ServerSettingsFragment extends PreferenceFragment
                 return false;
             }
 
-            sharedPreferences.edit()
-                    .putString(Constants.PREFERENCES_KEY_USERNAME + serverId, username)
-                    .apply();
+            sharedPreferences.edit().putString(Constants.PREFERENCES_KEY_USERNAME + serverId, username).apply();
             updateUsername();
             return true;
         } else if (preference == serverPasswordPref) {
-            sharedPreferences.edit()
-                    .putString(Constants.PREFERENCES_KEY_PASSWORD + serverId, (String) newValue)
-                    .apply();
+            sharedPreferences.edit().putString(Constants.PREFERENCES_KEY_PASSWORD + serverId, (String) newValue).apply();
             updatePassword();
             return true;
         } else if (preference == equalizerPref) {
-            sharedPreferences.edit()
-                    .putBoolean(Constants.PREFERENCES_KEY_SERVER_ENABLED + serverId, (Boolean) newValue)
-                    .apply();
+            sharedPreferences.edit().putBoolean(Constants.PREFERENCES_KEY_SERVER_ENABLED + serverId, (Boolean) newValue).apply();
             return true;
         } else if (preference == jukeboxPref) {
-            sharedPreferences.edit()
-                    .putBoolean(Constants.PREFERENCES_KEY_JUKEBOX_BY_DEFAULT + serverId, (Boolean) newValue)
-                    .apply();
+            sharedPreferences.edit().putBoolean(Constants.PREFERENCES_KEY_JUKEBOX_BY_DEFAULT + serverId, (Boolean) newValue).apply();
             return true;
         } else if (preference == allowSelfSignedCertificatePref) {
-            sharedPreferences.edit()
-                    .putBoolean(Constants.PREFERENCES_KEY_ALLOW_SELF_SIGNED_CERTIFICATE + serverId, (Boolean) newValue)
-                    .apply();
+            sharedPreferences.edit().putBoolean(Constants.PREFERENCES_KEY_ALLOW_SELF_SIGNED_CERTIFICATE + serverId, (Boolean) newValue).apply();
             return true;
         } else if (preference == enableLdapUserSupportPref) {
-            sharedPreferences.edit()
-                    .putBoolean(Constants.PREFERENCES_KEY_LDAP_SUPPORT + serverId, (Boolean) newValue)
-                    .apply();
+            sharedPreferences.edit().putBoolean(Constants.PREFERENCES_KEY_LDAP_SUPPORT + serverId, (Boolean) newValue).apply();
             return true;
         }
         return false;
@@ -175,47 +159,34 @@ public class ServerSettingsFragment extends PreferenceFragment
         updatePassword();
 
         if (!sharedPreferences.contains(Constants.PREFERENCES_KEY_SERVER_ENABLED + serverId)) {
-            sharedPreferences.edit()
-                    .putBoolean(Constants.PREFERENCES_KEY_SERVER_ENABLED + serverId, true)
-                    .apply();
+            sharedPreferences.edit().putBoolean(Constants.PREFERENCES_KEY_SERVER_ENABLED + serverId, true).apply();
         }
-        equalizerPref.setChecked(sharedPreferences
-                .getBoolean(Constants.PREFERENCES_KEY_SERVER_ENABLED + serverId, true));
+        equalizerPref.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCES_KEY_SERVER_ENABLED + serverId, true));
 
-        jukeboxPref.setChecked(sharedPreferences
-                .getBoolean(Constants.PREFERENCES_KEY_JUKEBOX_BY_DEFAULT + serverId, false));
+        jukeboxPref.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCES_KEY_JUKEBOX_BY_DEFAULT + serverId, false));
 
-        allowSelfSignedCertificatePref.setChecked(sharedPreferences
-                .getBoolean(Constants.PREFERENCES_KEY_ALLOW_SELF_SIGNED_CERTIFICATE + serverId, false));
+        allowSelfSignedCertificatePref.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCES_KEY_ALLOW_SELF_SIGNED_CERTIFICATE + serverId, false));
 
-        enableLdapUserSupportPref.setChecked(sharedPreferences
-                .getBoolean(Constants.PREFERENCES_KEY_LDAP_SUPPORT + serverId, false));
+        enableLdapUserSupportPref.setChecked(sharedPreferences.getBoolean(Constants.PREFERENCES_KEY_LDAP_SUPPORT + serverId, false));
     }
 
     private void updatePassword() {
-        serverPasswordPref.setText(sharedPreferences
-                .getString(Constants.PREFERENCES_KEY_PASSWORD + serverId,
-                        ""));
+        serverPasswordPref.setText(sharedPreferences.getString(Constants.PREFERENCES_KEY_PASSWORD + serverId, "***"));
+        serverPasswordPref.setSummary("***");
     }
 
     private void updateUsername() {
-        serverUsernamePref.setText(sharedPreferences
-                .getString(Constants.PREFERENCES_KEY_USERNAME + serverId,
-                        ""));
+        serverUsernamePref.setText(sharedPreferences.getString(Constants.PREFERENCES_KEY_USERNAME + serverId, getString(R.string.settings_server_username)));
     }
 
     private void updateUrl() {
-        final String serverUrl = sharedPreferences
-                .getString(Constants.PREFERENCES_KEY_SERVER_URL + serverId,
-                        "http://");
+        final String serverUrl = sharedPreferences.getString(Constants.PREFERENCES_KEY_SERVER_URL + serverId, getString(R.string.settings_server_address_unset));
         serverUrlPref.setText(serverUrl);
         serverUrlPref.setSummary(serverUrl);
     }
 
     private void updateName() {
-        final String serverName = sharedPreferences
-                .getString(Constants.PREFERENCES_KEY_SERVER_NAME + serverId,
-                        "");
+        final String serverName = sharedPreferences.getString(Constants.PREFERENCES_KEY_SERVER_NAME + serverId, getString(R.string.settings_server_unused));
         serverNamePref.setText(serverName);
         serverNamePref.setSummary(serverName);
     }
@@ -279,14 +250,12 @@ public class ServerSettingsFragment extends PreferenceFragment
     }
 
     private void removeServer() {
-        int activeServers = sharedPreferences
-                .getInt(Constants.PREFERENCES_KEY_ACTIVE_SERVERS, 0);
+        int activeServers = sharedPreferences.getInt(Constants.PREFERENCES_KEY_ACTIVE_SERVERS, 0);
 
         // Clear permanent storage
-        final String storageServerId = MusicServiceFactory.getServerId();
-        final Directories directories = MusicServiceFactory.getDirectories();
+        final String storageServerId = MusicServiceFactory.getServerId(sharedPreferences, serverId);
         final PermanentFileStorage fileStorage = new PermanentFileStorage(
-                directories,
+                MusicServiceFactory.getDirectories(getActivity()),
                 storageServerId,
                 BuildConfig.DEBUG
         );

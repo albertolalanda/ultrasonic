@@ -1,7 +1,7 @@
 package org.moire.ultrasonic.domain
 
 import java.io.Serializable
-import java.util.Date
+import java.util.*
 
 class MusicDirectory {
     var name: String? = null
@@ -35,6 +35,7 @@ class MusicDirectory {
         return children.filter { it.isDirectory && includeDirs || !it.isDirectory && includeFiles }
     }
 
+    //LALANDA MUSIC ENTRY AVALABLE VARIABLES TO CALL
     data class Entry(
         var id: String? = null,
         var parent: String? = null,
@@ -51,6 +52,8 @@ class MusicDirectory {
         var suffix: String? = null,
         var transcodedContentType: String? = null,
         var transcodedSuffix: String? = null,
+        var applicableTranscodings: String? = null,
+        var transcoderNum: Int? = 0,
         var coverArt: String? = null,
         var size: Long? = null,
         var songCount: Long? = null,

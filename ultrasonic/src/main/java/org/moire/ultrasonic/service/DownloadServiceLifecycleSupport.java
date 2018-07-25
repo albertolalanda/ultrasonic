@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import org.moire.ultrasonic.R;
+import org.moire.ultrasonic.activity.DownloadActivity;
 import org.moire.ultrasonic.domain.MusicDirectory;
 import org.moire.ultrasonic.domain.PlayerState;
 import org.moire.ultrasonic.util.CacheCleaner;
@@ -43,6 +44,7 @@ import org.moire.ultrasonic.util.Util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -53,6 +55,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Sindre Mehus
  */
+//LALANDA INFO ON GETTING CALLS TO INVESTIGATE
 public class DownloadServiceLifecycleSupport
 {
 
@@ -103,6 +106,7 @@ public class DownloadServiceLifecycleSupport
 				downloadService.pause();
 				downloadService.seekTo(0);
 			}
+
 		}
 	};
 
@@ -271,6 +275,18 @@ public class DownloadServiceLifecycleSupport
 		}
 		state.currentPlayingIndex = downloadService.getCurrentPlayingIndex();
 		state.currentPlayingPosition = downloadService.getPlayerPosition();
+
+
+		/*
+		// TIAGO MARTINS: FIZ ESTA MARAVILHA DE CODIGO
+		for (MusicDirectory.Entry entry : state.songs){
+			String[] applicableTranscodings = entry.getApplicableTranscodings().split("/");
+			Random r = new Random();
+			int rand = r.nextInt(applicableTranscodings.length);
+			entry.setTranscoderNum(Integer.parseInt(applicableTranscodings[rand]));
+			System.out.println("Random transcoderNum: "+applicableTranscodings[rand]+" , for song: "+entry.getTitle());
+		}
+		*/
 
 		Log.i(TAG, String.format("Serialized currentPlayingIndex: %d, currentPlayingPosition: %d", state.currentPlayingIndex, state.currentPlayingPosition));
 		FileUtil.serialize(downloadService, state, FILENAME_DOWNLOADS_SER);

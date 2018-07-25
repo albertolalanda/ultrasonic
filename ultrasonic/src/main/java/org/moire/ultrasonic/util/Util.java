@@ -21,7 +21,11 @@ package org.moire.ultrasonic.util;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.*;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
@@ -45,19 +49,34 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+
 import org.moire.ultrasonic.R;
 import org.moire.ultrasonic.activity.DownloadActivity;
 import org.moire.ultrasonic.activity.MainActivity;
 import org.moire.ultrasonic.activity.SettingsActivity;
-import org.moire.ultrasonic.domain.*;
+import org.moire.ultrasonic.activity.UserInformationActivity;
+import org.moire.ultrasonic.domain.Bookmark;
+import org.moire.ultrasonic.domain.MusicDirectory;
 import org.moire.ultrasonic.domain.MusicDirectory.Entry;
+import org.moire.ultrasonic.domain.PlayerState;
+import org.moire.ultrasonic.domain.RepeatMode;
+import org.moire.ultrasonic.domain.SearchResult;
+import org.moire.ultrasonic.domain.Version;
 import org.moire.ultrasonic.receiver.MediaButtonIntentReceiver;
 import org.moire.ultrasonic.service.DownloadFile;
 import org.moire.ultrasonic.service.DownloadService;
 import org.moire.ultrasonic.service.DownloadServiceImpl;
 import org.moire.ultrasonic.service.MusicServiceFactory;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -171,16 +190,139 @@ public class Util extends DownloadActivity
 		return preferences.getBoolean(Constants.PREFERENCES_KEY_SHOW_LOCK_SCREEN_CONTROLS, false);
 	}
 
-    public static void setActiveServer(
-            Context context,
-            int instance
-    ) {
+	public static void setActiveServer(Context context, int instance)
+	{
         MusicServiceFactory.resetMusicService();
-        SharedPreferences preferences = getPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(Constants.PREFERENCES_KEY_SERVER_INSTANCE, instance);
-        editor.apply();
-    }
+		SharedPreferences preferences = getPreferences(context);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(Constants.PREFERENCES_KEY_SERVER_INSTANCE, instance);
+		editor.commit();
+	}
+
+	////-------------------------------------------------------------------------------------///////
+
+	public static boolean isUserInfoSent(Context context)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		return preferences.getBoolean(Constants.USER_INFORMATION_IS_SENT, false);
+	}
+
+	public static void setUserInfoSent(Context context, boolean value)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putBoolean(Constants.USER_INFORMATION_IS_SENT, value);
+		editor.commit();
+	}
+
+	//LALANDA SET MYMUSICQOESERVER
+	public static void setMyMusicQoEServer(Context context, int instance)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(Constants.PREFERENCES_KEY_SERVER_INSTANCE, instance);
+		preferences.edit().putString(Constants.PREFERENCES_KEY_SERVER_NAME + 1, "MyMusicQoE Server").apply();
+		preferences.edit().putString(Constants.PREFERENCES_KEY_SERVER_URL + 1, "http://188.166.45.222:8080/airsonic").apply();
+		preferences.edit().putString(Constants.PREFERENCES_KEY_USERNAME + 1, "guest").apply();
+		preferences.edit().putString(Constants.PREFERENCES_KEY_PASSWORD + 1, "guest").apply();
+		editor.putInt(Constants.PREFERENCES_KEY_SERVER_INSTANCE, 1);
+		editor.commit();
+	}
+
+	//LALANDA CLASS FOR ALL USER PREFTS? IS TRY CATCH NEEDED?
+	public static void setUserId(Context context, int instance)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(Constants.USER_ID, instance);
+		editor.commit();
+	}
+
+	public static int getUserId(Context context)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		return preferences.getInt(Constants.USER_ID, 0);
+	}
+
+	public static void setUserSex(Context context, int instance)
+	{
+		//0 for female
+		//1 for male
+		SharedPreferences preferences = getPreferences(context);
+		if (instance > 0){
+			preferences.edit().putString(Constants.USER_SEX, "M").apply();
+		}else{
+			preferences.edit().putString(Constants.USER_SEX, "F").apply();
+		}
+	}
+
+	public static String getUserSex(Context context)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		return preferences.getString(Constants.USER_SEX, "Not Defined");
+	}
+
+	public static void setUserAge(Context context, int instance)
+	{
+//		1 -20
+//		2 20-30
+//		3 30-40
+//		4 40-50
+//		5 50-60
+//		6 +60
+		SharedPreferences preferences = getPreferences(context);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(Constants.USER_AGE, instance);
+		editor.commit();
+	}
+
+	public static int getUserAge(Context context)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		return preferences.getInt(Constants.USER_AGE, 0);
+	}
+
+	public static void setNumberOfFavoriteGenres(Context context, int instance)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(Constants.USER_NUMBER_OF_FAVORITE_GENRES, instance);
+		editor.commit();
+	}
+
+	public static int getNumberOfFavoriteGenres(Context context)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		return preferences.getInt(Constants.USER_NUMBER_OF_FAVORITE_GENRES, 0);
+	}
+
+	public static void setFavoriteGenre(Context context, String genre, int instance)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		preferences.edit().putString(Constants.USER_FAVORITE_GENRES + instance, genre).apply();
+	}
+
+	public static String getFavoriteGenre(Context context, int instance)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		return preferences.getString(Constants.USER_FAVORITE_GENRES + instance, null);
+	}
+
+	public static void setUserPlaylistNumber(Context context, int instance)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(Constants.USER_NUMBER_OF_PLAYLIST, instance);
+		editor.commit();
+	}
+
+	public static int getUserPlaylistNumber(Context context)
+	{
+		SharedPreferences preferences = getPreferences(context);
+		return preferences.getInt(Constants.USER_NUMBER_OF_PLAYLIST, 0);
+	}
+
+	////-------------------------------------------------------------------------------------///////
 
 	public static int getActiveServer(Context context)
 	{
@@ -714,7 +856,7 @@ public class Util extends DownloadActivity
 		{
 			MessageDigest md5 = MessageDigest.getInstance("MD5");
 			return hexEncode(md5.digest(s.getBytes(Constants.UTF_8)));
-		}
+	}
 		catch (Exception x)
 		{
 			throw new RuntimeException(x.getMessage(), x);
@@ -737,6 +879,7 @@ public class Util extends DownloadActivity
 		return null;
 	}
 
+	//LALANDA IS NETWORK CONNECTED METHOD
 	public static boolean isNetworkConnected(Context context)
 	{
 		ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -774,8 +917,9 @@ public class Util extends DownloadActivity
 
 	public static boolean shouldShowTrackNumber(Context context)
 	{
-		SharedPreferences preferences = getPreferences(context);
-		return preferences.getBoolean(Constants.PREFERENCES_KEY_SHOW_TRACK_NUMBER, false);
+//		SharedPreferences preferences = getPreferences(context);
+//		return preferences.getBoolean(Constants.PREFERENCES_KEY_SHOW_TRACK_NUMBER, false);
+		return true;
 	}
 
 	public static void info(Context context, int titleId, int messageId)
@@ -783,6 +927,7 @@ public class Util extends DownloadActivity
 		showDialog(context, android.R.drawable.ic_dialog_info, titleId, messageId);
 	}
 
+	//LALANDA WELCOME DIALOG
 	public static void showWelcomeDialog(final Context context, final MainActivity activity, int titleId, int messageId)
 	{
 		new AlertDialog.Builder(context).setIcon(android.R.drawable.ic_dialog_info).setTitle(titleId).setMessage(messageId).setPositiveButton(R.string.common_ok, new DialogInterface.OnClickListener()
@@ -791,7 +936,12 @@ public class Util extends DownloadActivity
 			public void onClick(DialogInterface dialog, int i)
 			{
 				dialog.dismiss();
-				activity.startActivityForResultWithoutTransition(activity, SettingsActivity.class);
+				//activity.startActivityForResultWithoutTransition(activity, SettingsActivity.class);
+				//LALANDA IF NETWORK CONNECTED ELSE ERROR DIALOG
+				/*if (!isNetworkConnected(activity)){
+					new ErrorDialog(activity, R.string.background_task_network_error, true);
+				}*/
+				activity.startActivityForResultWithoutTransition(activity, UserInformationActivity.class);
 			}
 		}).show();
 	}
@@ -912,18 +1062,17 @@ public class Util extends DownloadActivity
 		return musicDirectory;
 	}
 
-    public static MusicDirectory getSongsFromBookmarks(Iterable<Bookmark> bookmarks) {
-        MusicDirectory musicDirectory = new MusicDirectory();
+	public static MusicDirectory getSongsFromBookmarks(Iterable<Bookmark> bookmarks)
+	{
+		MusicDirectory musicDirectory = new MusicDirectory();
 
-        MusicDirectory.Entry song;
-        for (Bookmark bookmark : bookmarks) {
-            song = bookmark.getEntry();
-            song.setBookmarkPosition(bookmark.getPosition());
-            musicDirectory.addChild(song);
-        }
+		for (Bookmark bookmark : bookmarks)
+		{
+			musicDirectory.addChild(bookmark.getEntry());
+		}
 
-        return musicDirectory;
-    }
+		return musicDirectory;
+	}
 
 	/**
 	 * <p>Broadcasts the given song info as the new song being played.</p>
@@ -1356,6 +1505,7 @@ public class Util extends DownloadActivity
 		return Integer.parseInt(preferences.getString(Constants.PREFERENCES_KEY_BUFFER_LENGTH, "5"));
 	}
 
+	//skip interval
 	public static int getIncrementTime(Context context)
 	{
 		SharedPreferences preferences = getPreferences(context);
@@ -1382,14 +1532,17 @@ public class Util extends DownloadActivity
 
 	public static boolean getShouldTransitionOnPlaybackPreference(Context context)
 	{
-		SharedPreferences preferences = getPreferences(context);
-		return preferences.getBoolean(Constants.PREFERENCES_KEY_DOWNLOAD_TRANSITION, true);
+//		SharedPreferences preferences = getPreferences(context);
+//		return preferences.getBoolean(Constants.PREFERENCES_KEY_DOWNLOAD_TRANSITION, true);
+		return true;
 	}
 
+	//LALANDA NEVER USE ID3 ALWAYS FILE SYSTEM BASED METHODS
 	public static boolean getShouldUseId3Tags(Context context)
 	{
-		SharedPreferences preferences = getPreferences(context);
-		return preferences.getBoolean(Constants.PREFERENCES_KEY_ID3_TAGS, false);
+//		SharedPreferences preferences = getPreferences(context);
+//		return preferences.getBoolean(Constants.PREFERENCES_KEY_ID3_TAGS, false);
+		return false;
 	}
 
 	public static int getChatRefreshInterval(Context context)
@@ -1420,10 +1573,12 @@ public class Util extends DownloadActivity
 		return preferences.getBoolean(Constants.PREFERENCES_KEY_CLEAR_PLAYLIST, false);
 	}
 
+	//always sort by disc number and track number. dont know for sure what this does
 	public static boolean getShouldSortByDisc(Context context)
 	{
-		SharedPreferences preferences = getPreferences(context);
-		return preferences.getBoolean(Constants.PREFERENCES_KEY_DISC_SORT, false);
+//		SharedPreferences preferences = getPreferences(context);
+//		return preferences.getBoolean(Constants.PREFERENCES_KEY_DISC_SORT, false);
+		return true;
 	}
 
 	public static boolean getShouldClearBookmark(Context context)
@@ -1549,10 +1704,12 @@ public class Util extends DownloadActivity
 		return preferences.getBoolean(Constants.PREFERENCES_KEY_SEND_BLUETOOTH_ALBUM_ART, true);
 	}
 
+	//LALANDA refresh interval for views always 1sec
 	public static int getViewRefreshInterval(Context context)
 	{
-		SharedPreferences preferences = getPreferences(context);
-		return Integer.parseInt(preferences.getString(Constants.PREFERENCES_KEY_VIEW_REFRESH, "1000"));
+//		SharedPreferences preferences = getPreferences(context);
+//		return Integer.parseInt(preferences.getString(Constants.PREFERENCES_KEY_VIEW_REFRESH, "1000"));
+		return 1000;
 	}
 
 	public static boolean getShouldAskForShareDetails(Context context)
@@ -1623,10 +1780,13 @@ public class Util extends DownloadActivity
 		editor.commit();
 	}
 
+
+	//LALANDA always show all songs by artist
 	public static boolean getShouldShowAllSongsByArtist(Context context)
 	{
-		SharedPreferences preferences = getPreferences(context);
-		return preferences.getBoolean(Constants.PREFERENCES_KEY_SHOW_ALL_SONGS_BY_ARTIST, false);
+//		SharedPreferences preferences = getPreferences(context);
+//		return preferences.getBoolean(Constants.PREFERENCES_KEY_SHOW_ALL_SONGS_BY_ARTIST, false);
+		return true;
 	}
 
 	public static boolean getShouldScanMedia(Context context)
@@ -1642,9 +1802,11 @@ public class Util extends DownloadActivity
 		context.sendBroadcast(scanFileIntent);
 	}
 
+	//LALANDA SETTINGS IMAGE LOADER CONCURRENCY LETS MAKE IT 5
 	public static int getImageLoaderConcurrency(Context context)
 	{
-		SharedPreferences preferences = getPreferences(context);
-		return Integer.parseInt(preferences.getString(Constants.PREFERENCES_KEY_IMAGE_LOADER_CONCURRENCY, "5"));
+//		SharedPreferences preferences = getPreferences(context);
+//		return Integer.parseInt(preferences.getString(Constants.PREFERENCES_KEY_IMAGE_LOADER_CONCURRENCY, "5"));
+		return 5;
 	}
 }

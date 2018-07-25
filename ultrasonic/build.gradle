@@ -8,8 +8,8 @@ android {
 
     defaultConfig {
         applicationId "org.moire.ultrasonic"
-        versionCode 69
-        versionName "2.6.0"
+        versionCode versions.versionCode
+        versionName versions.versionName
 
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
@@ -55,23 +55,25 @@ dependencies {
     implementation project(':library')
     implementation project(':domain')
     implementation project(':subsonic-api')
-    implementation project(':subsonic-api-image-loader')
     implementation project(':cache')
 
     implementation androidSupport.support
     implementation androidSupport.design
 
     implementation other.kotlinStdlib
-    implementation other.koinAndroid
 
     testImplementation other.kotlinReflect
     testImplementation testing.junit
     testImplementation testing.kotlinJunit
     testImplementation testing.mockitoKotlin
     testImplementation testing.kluent
+
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+
+    implementation 'com.github.douglasjunior:android-simple-tooltip:0.2.2'
 }
 
-// Excluding all java classes and stuff that should not be covered
+// Excluding all non-kotlin classes
 ext {
     jacocoExclude = [
             '**/activity/**',
@@ -85,8 +87,7 @@ ext {
             '**/view/**',
             '**/R$*.class',
             '**/R.class',
-            '**/BuildConfig.class',
-            '**/di/**'
+            '**/BuildConfig.class'
     ]
 }
 jacocoAndroidUnitTestReport {

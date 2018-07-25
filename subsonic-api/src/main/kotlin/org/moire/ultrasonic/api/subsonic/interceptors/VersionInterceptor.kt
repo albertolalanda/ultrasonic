@@ -48,7 +48,8 @@ internal class VersionInterceptor(
     }
 
     private fun tryUpdateProtocolVersion(response: Response) {
-        val content = response.peekBody(DEFAULT_PEEK_BYTE_COUNT).byteStream()
+        val content = response.peekBody(DEFAULT_PEEK_BYTE_COUNT)
+                .byteStream().bufferedReader().readText()
 
         try {
             val jsonReader = jsonFactory.createParser(content)

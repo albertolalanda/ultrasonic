@@ -44,10 +44,9 @@ import org.moire.ultrasonic.view.GenreAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//LALANDA SELECT GENRE ACTIVITY
 public class SelectGenreActivity extends SubsonicTabActivity implements AdapterView.OnItemClickListener
 {
-
 	private static final String TAG = SelectGenreActivity.class.getSimpleName();
 
 	private PullToRefreshListView refreshGenreListView;
@@ -137,7 +136,6 @@ public class SelectGenreActivity extends SubsonicTabActivity implements AdapterV
 				{
 					genreListView.setAdapter(new GenreAdapter(SelectGenreActivity.this, result));
 				}
-
 			}
 		};
 		task.execute();

@@ -19,6 +19,7 @@
 package org.moire.ultrasonic.service;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -26,12 +27,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.RemoteControlClient;
 import android.media.audiofx.AudioEffect;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -45,6 +48,7 @@ import android.widget.SeekBar;
 import org.moire.ultrasonic.R;
 import org.moire.ultrasonic.activity.DownloadActivity;
 import org.moire.ultrasonic.activity.SubsonicTabActivity;
+import org.moire.ultrasonic.activity.UserInformationActivity;
 import org.moire.ultrasonic.audiofx.EqualizerController;
 import org.moire.ultrasonic.audiofx.VisualizerController;
 import org.moire.ultrasonic.domain.MusicDirectory;
@@ -57,13 +61,18 @@ import org.moire.ultrasonic.provider.UltraSonicAppWidgetProvider4x2;
 import org.moire.ultrasonic.provider.UltraSonicAppWidgetProvider4x3;
 import org.moire.ultrasonic.provider.UltraSonicAppWidgetProvider4x4;
 import org.moire.ultrasonic.receiver.MediaButtonIntentReceiver;
+import org.moire.ultrasonic.util.BackgroundTask;
+import org.moire.ultrasonic.util.CacheCleaner;
 import org.moire.ultrasonic.util.CancellableTask;
 import org.moire.ultrasonic.util.Constants;
+import org.moire.ultrasonic.util.ErrorDialog;
 import org.moire.ultrasonic.util.FileUtil;
 import org.moire.ultrasonic.util.LRUCache;
+import org.moire.ultrasonic.util.ModalBackgroundTask;
 import org.moire.ultrasonic.util.ShufflePlayBuffer;
 import org.moire.ultrasonic.util.SimpleServiceBinder;
 import org.moire.ultrasonic.util.StreamProxy;
+import org.moire.ultrasonic.util.TabActivityBackgroundTask;
 import org.moire.ultrasonic.util.Util;
 
 import java.io.File;
@@ -71,7 +80,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import static org.moire.ultrasonic.domain.PlayerState.COMPLETED;
 import static org.moire.ultrasonic.domain.PlayerState.DOWNLOADING;
@@ -84,6 +95,9 @@ import static org.moire.ultrasonic.domain.PlayerState.STOPPED;
 
 /**
  * @author Sindre Mehus, Joshua Bahnsen
+ * @version ultrasonic 2.4.0
+ *
+ * @author Alberto Lalanda, Tiago Martins
  * @version $Id$
  */
 public class DownloadServiceImpl extends Service implements DownloadService
@@ -144,6 +158,14 @@ public class DownloadServiceImpl extends Service implements DownloadService
 	private int secondaryProgress = -1;
 	private boolean autoPlayStart;
 	private final static int lockScreenBitmapSize = 500;
+
+	//--------------------------------------------------------------------------------------------//
+	//LALANDA RATING FOR MyMusicQoE variables
+
+	//SONG RATED ?, RATING GIVEN, NUMBER OF RATING FOR THIS PLAYLIST NUMBER (TO IMPLEMENT LATER)
+	private ArrayList<int[]> songsRatingInfo = new ArrayList<int[]>();
+	private boolean newSong = true;
+	//--------------------------------------------------------------------------------------------//
 
 	static
 	{
@@ -340,7 +362,20 @@ public class DownloadServiceImpl extends Service implements DownloadService
 
 		if (newPlaylist)
 		{
+			//LOOKS LIKE WE ONLY ENTER HERE ON BOOKMARK?
+
+			//ALBERTO LALANDA CLEAR OLD PLAYLIST IF NEW PLAYLIST IS GOING TO PLAY
+			//DOES NOT WORK
+//			final List<MusicDirectory.Entry> oldPlaylistSong = new LinkedList<Entry>();
+//			for (final DownloadFile downloadFile : downloadList)
+//			{
+//				oldPlaylistSong.add(downloadFile.getSong());
+//			}
+//			delete(oldPlaylistSong);
+			downloadFileCache.clear();
+			/////////////////////////////////////////////////////////////////////
 			downloadList.clear();
+			songsRatingInfo.clear();
 		}
 
 		if (playNext)
@@ -354,6 +389,7 @@ public class DownloadServiceImpl extends Service implements DownloadService
 			{
 				DownloadFile downloadFile = new DownloadFile(this, song, save);
 				downloadList.add(getCurrentPlayingIndex() + offset, downloadFile);
+				songsRatingInfo.add(getCurrentPlayingIndex() + offset, new int[2]);
 				offset++;
 			}
 
@@ -361,6 +397,9 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		}
 		else
 		{
+			final Context context = DownloadActivity.getInstance().getApplicationContext();
+			Util.setUserPlaylistNumber(context, Util.getUserPlaylistNumber(context)+1);
+
 			int size = size();
 			int index = getCurrentPlayingIndex();
 
@@ -368,6 +407,7 @@ public class DownloadServiceImpl extends Service implements DownloadService
 			{
 				DownloadFile downloadFile = new DownloadFile(this, song, save);
 				downloadList.add(downloadFile);
+				songsRatingInfo.add(new int[2]);
 			}
 
 			if (!autoplay && (size - 1) == index)
@@ -400,6 +440,7 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		lifecycleSupport.serializeDownloadQueue();
 	}
 
+	//LALANDA ACHO QUE ISTO É QUANDO FAZEMOS O DOWNLOAD DE MUSICAS PARA OUVIR DEPOIS
 	@Override
 	public synchronized void downloadBackground(List<MusicDirectory.Entry> songs, boolean save)
 	{
@@ -488,12 +529,20 @@ public class DownloadServiceImpl extends Service implements DownloadService
 	@Override
 	public synchronized void shuffle()
 	{
-		Collections.shuffle(downloadList);
+	    //MyMusicQoE to shuffle in same order
+        long seed = System.nanoTime();
+		Collections.shuffle(downloadList, new Random(seed));
+        Collections.shuffle(songsRatingInfo, new Random(seed));
+		int[] auxiliar;
+
 		if (currentPlaying != null)
 		{
+			auxiliar = songsRatingInfo.remove(getCurrentPlayingIndex());
+			songsRatingInfo.add(0, auxiliar);
 			downloadList.remove(getCurrentPlayingIndex());
 			downloadList.add(0, currentPlaying);
 		}
+
 		revision++;
 		lifecycleSupport.serializeDownloadQueue();
 		updateJukeboxPlaylist();
@@ -564,6 +613,20 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		return downloadFile;
 	}
 
+	//LALANDA
+	@Override
+	public synchronized boolean forSongGetIsRated(MusicDirectory.Entry song)
+	{
+		for (DownloadFile downloadFile : downloadList)
+		{
+			if (downloadFile.getSong().equals(song))
+			{
+				return getSongsRatingInfo(downloadList.indexOf(downloadFile), 0) == 1;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public synchronized void clear()
 	{
@@ -609,7 +672,9 @@ public class DownloadServiceImpl extends Service implements DownloadService
 	public synchronized void clear(boolean serialize)
 	{
 		reset();
+
 		downloadList.clear();
+		songsRatingInfo.clear();
 		revision++;
 		if (currentDownloading != null)
 		{
@@ -630,8 +695,11 @@ public class DownloadServiceImpl extends Service implements DownloadService
 	public synchronized void remove(int which)
 	{
 		downloadList.remove(which);
+		//remove MyMusicQoE Rating
+		songsRatingInfo.remove(which);
 	}
 
+	//LALANDA MAYBE I NEED TO DELETE HERE AS WELL
 	@Override
 	public synchronized void remove(DownloadFile downloadFile)
 	{
@@ -645,6 +713,7 @@ public class DownloadServiceImpl extends Service implements DownloadService
 			reset();
 			setCurrentPlaying(null);
 		}
+		songsRatingInfo.remove(downloadList.indexOf(downloadFile));
 		downloadList.remove(downloadFile);
 		backgroundDownloadList.remove(downloadFile);
 		revision++;
@@ -868,6 +937,11 @@ public class DownloadServiceImpl extends Service implements DownloadService
 
 	private synchronized void play(int index, boolean start)
 	{
+		//MyMusicQoE send if
+		if (getCurrentPlaying() != null){
+			sendRatingMyMusicQoE(getCurrentPlaying());
+		}
+
 		updateRemoteControl();
 
 		if (index < 0 || index >= size())
@@ -900,6 +974,9 @@ public class DownloadServiceImpl extends Service implements DownloadService
 			checkDownloads();
 			setNextPlaying();
 		}
+
+		//MyMusicQoE newSong
+		setNewSong(true);
 	}
 
 	private synchronized void resetPlayback()
@@ -909,11 +986,17 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		lifecycleSupport.serializeDownloadQueue();
 	}
 
+	//LALANDA PLAYNEXT SONG
 	private synchronized void playNext()
 	{
+
 		MediaPlayer tmp = mediaPlayer;
 		mediaPlayer = nextMediaPlayer;
 		nextMediaPlayer = tmp;
+
+//		mediaPlayer.pause();
+//		System.out.println("LALANDA MEDIA PLAYER PAUSE");
+
 		setCurrentPlaying(nextPlaying);
 		setPlayerState(PlayerState.STARTED);
 		setupHandlers(currentPlaying, false);
@@ -1001,6 +1084,7 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		}
 	}
 
+	//LALANDA ON SONG COMPLETED DOWNLOAD!!!
 	private void onSongCompleted()
 	{
 		int index = getCurrentPlayingIndex();
@@ -1768,6 +1852,8 @@ public class DownloadServiceImpl extends Service implements DownloadService
 
 		final int duration = downloadFile.getSong().getDuration() == null ? 0 : downloadFile.getSong().getDuration() * 1000;
 
+
+		//LALANDA ON COMPLETION OF SONG MEDIAPLAYER
 		mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
 		{
 			@Override
@@ -1780,6 +1866,13 @@ public class DownloadServiceImpl extends Service implements DownloadService
 
 				int pos = cachedPosition;
 				Log.i(TAG, String.format("Ending position %d of %d", pos, duration));
+
+//                if(DownloadActivity.isRated()){
+//					DownloadActivity.getVerticaSeekBar().getProgress()
+//				}
+
+				//LALANDA SEND RATING
+				sendRatingMyMusicQoE(downloadFile);
 
 				if (!isPartial || (downloadFile.isWorkDone() && (Math.abs(duration - pos) < 1000)))
 				{
@@ -1837,6 +1930,7 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		}
 	}
 
+
 	@Override
 	public synchronized void swap(boolean mainList, int from, int to)
 	{
@@ -1853,8 +1947,22 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		}
 
 		int currentPlayingIndex = getCurrentPlayingIndex();
+
+
 		DownloadFile movedSong = list.remove(from);
+
+		//MyMusicQoE swap songs drag list. WE DONT NEED TO USE BACKGROUND DOWNLOAD LIST!!!
+		//I THINK THIS WILL DO THE TRICK
+//		if (mainList){
+//			int[] data = songsRatingInfo.remove(from);
+//			//this is aparently does nothing ITS ON DOWNLOAD ACTIVITY ?!?!?!
+//			songsRatingInfo.add(to, data);
+//		}
+
+
 		list.add(to, movedSong);
+
+
 
 		if (jukeboxEnabled && mainList)
 		{
@@ -2003,6 +2111,10 @@ public class DownloadServiceImpl extends Service implements DownloadService
 		cleanup();
 	}
 
+
+
+
+	//LALANDA checkShufflePlay
 	private synchronized void checkShufflePlay()
 	{
 		// Get users desired random playlist size
@@ -2019,24 +2131,39 @@ public class DownloadServiceImpl extends Service implements DownloadService
 			{
 				DownloadFile downloadFile = new DownloadFile(this, song, false);
 				downloadList.add(downloadFile);
+				songsRatingInfo.add(new int[2]);
 				revision++;
 			}
+			//LALANDA DELETE FOR SHUFFLE
+			final List<MusicDirectory.Entry> songs = new LinkedList<MusicDirectory.Entry>();
+			for (final DownloadFile downloadFile : downloadList)
+			{
+				songs.add(downloadFile.getSong());
+			}
+
+			if (!songs.isEmpty())
+			{
+				delete(songs);
+			}
+			//-------------------//
 		}
 
-		int currIndex = currentPlaying == null ? 0 : getCurrentPlayingIndex();
-
+		//LALANDA INFINITE SHUFFLE LIST FOR NOW WE TAKE
+		//int currIndex = currentPlaying == null ? 0 : getCurrentPlayingIndex();
 		// Only shift playlist if playing song #5 or later.
-		if (currIndex > 4)
+		/*if (currIndex > 4)
 		{
 			int songsToShift = currIndex - 2;
 			for (MusicDirectory.Entry song : shufflePlayBuffer.get(songsToShift))
 			{
 				downloadList.add(new DownloadFile(this, song, false));
+				songsRatingInfo.add(new int[2]);
 				downloadList.get(0).cancelDownload();
 				downloadList.remove(0);
+				songsRatingInfo.remove(0);
 				revision++;
 			}
-		}
+		}*/
 
 		if (revisionBefore != revision)
 		{
@@ -2294,4 +2421,147 @@ public class DownloadServiceImpl extends Service implements DownloadService
 			return String.format("CheckCompletionTask (%s)", downloadFile);
 		}
 	}
+
+	private boolean isHeadphonesPlugged(){
+		AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		if ((Build.VERSION.SDK_INT < 23) && (audioManager != null)) {
+			return audioManager.isWiredHeadsetOn();
+		}else if (Build.VERSION.SDK_INT >= 23){
+			AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+			for (AudioDeviceInfo deviceInfo : audioDevices) {
+				if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+						|| deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET) {
+					return true;
+				}
+			}
+			return false;
+		}
+		return false;
+	}
+
+	//MyMusicQoE SEND RATING RELATED METHODS
+	private void setNewRatingRest(final int songId, final int transcoderNum) {
+		BackgroundTask<Boolean> task = new TabActivityBackgroundTask<Boolean>(DownloadActivity.getInstance(), true)
+		{
+			final Context context = DownloadActivity.getInstance().getApplicationContext();
+			boolean responseSuccessful = false;
+			int playlistNumber;
+			@Override
+			protected Boolean doInBackground() throws Throwable
+			{
+				MusicService musicService = MusicServiceFactory.getMusicService(context);
+				playlistNumber = Util.getUserPlaylistNumber(context);
+				responseSuccessful = musicService.setCreateRatingQoE(context, playlistNumber,
+						Util.getUserId(context), songId, transcoderNum, isHeadphonesPlugged(),
+						DownloadActivity.getVerticaSeekBar().getProgress(), this);
+
+
+				return responseSuccessful;
+			}
+
+			@Override
+			protected void done(Boolean result)
+			{
+				if (!result) {
+					Util.toast(DownloadActivity.getInstance(), R.string.mymusicqoe_rating_error);
+				}else {
+					Util.toast(DownloadActivity.getInstance(), R.string.mymusicqoe_rating_saved_success);
+				}
+			}
+		};
+		task.execute();
+	}
+
+	private void setUpdateRatingRest(final int songId, final int transcoderNum) {
+		BackgroundTask<Boolean> task = new TabActivityBackgroundTask<Boolean>(DownloadActivity.getInstance(), true)
+		{
+			final Context context = DownloadActivity.getInstance().getApplicationContext();
+			boolean responseSuccessful = false;
+			int playlistNumber;
+
+			@Override
+			protected Boolean doInBackground() throws Throwable
+			{
+				MusicService musicService = MusicServiceFactory.getMusicService(context);
+				playlistNumber = Util.getUserPlaylistNumber(context);
+				responseSuccessful = musicService.setUpdateRatingQoE(context, playlistNumber,
+						Util.getUserId(context), songId, transcoderNum, isHeadphonesPlugged(),
+						DownloadActivity.getVerticaSeekBar().getProgress(), this);
+
+				return responseSuccessful;
+			}
+
+			@Override
+			protected void done(Boolean result)
+			{
+				if (!result) {
+					Util.toast(DownloadActivity.getInstance(), R.string.mymusicqoe_rating_error);
+				}else {
+					Util.toast(DownloadActivity.getInstance(), R.string.mymusicqoe_rating_updated_success);
+				}
+			}
+		};
+		task.execute();
+	}
+
+    @Override
+	public void sendRatingMyMusicQoE(final DownloadFile downloadFile){
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			@Override
+			public void run() {
+				int songId = Integer.parseInt(downloadFile.getSong().getId());
+				int transcoderNum = downloadFile.getSong().getTranscoderNum();
+				int index = downloadList.indexOf(downloadFile);
+
+				if (DownloadActivity.isRated()){
+					if (getSongsRatingInfo(index, 0) == 0){
+						setNewRatingRest(songId, transcoderNum);
+						setSongsRatingInfo(index, 1, DownloadActivity.getVerticaSeekBar().getProgress());
+					}else{
+						if (getSongsRatingInfo(index, 1) != DownloadActivity.getVerticaSeekBar().getProgress()){
+							setUpdateRatingRest(songId, transcoderNum);
+							setSongsRatingInfo(index, 1, DownloadActivity.getVerticaSeekBar().getProgress());
+						}
+					}
+				}
+			}
+		});
+	}
+
+	//MyMusicQoE getSongsRatingInfo DownloadServiceImpl.java
+	@Override
+	public int getSongsRatingInfo(int index, int yesOrRating) {
+		int response = songsRatingInfo.get(index)[yesOrRating];
+		return response;
+	}
+
+	//@Override
+	public void setSongsRatingInfo(int index, int hasRated, int rating) {
+		int[] x = (int[]) songsRatingInfo.get(index);
+		x[0] = hasRated;
+		x[1] = rating;
+		songsRatingInfo.set(index, x);
+	}
+
+	@Override
+	public boolean isNewSong() {
+		return newSong;
+	}
+
+	@Override
+	public void setNewSong(boolean newSong) {
+		this.newSong = newSong;
+	}
+
+	@Override
+	public void songsRatingInfoDelete(int which){
+		songsRatingInfo.remove(which);
+	}
+
+	@Override
+	public void songsRatingInfoDragNDrop(int from, int to){
+		int[] item = songsRatingInfo.remove(from);
+		songsRatingInfo.add(to, item);
+	}
+
 }

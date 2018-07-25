@@ -10,6 +10,8 @@
         a:layout_height="fill_parent"
         a:layout_weight="1">
 
+
+
         <FrameLayout
             a:id="@+id/download_album_art_layout"
             a:layout_width="fill_parent"
@@ -38,6 +40,7 @@
         </FrameLayout>
 
         <include layout="@layout/download_playlist"/>
+        <include layout="@layout/vertical_seekbar_rating" />
     </org.moire.ultrasonic.util.MyViewFlipper>
 
     <RelativeLayout
@@ -55,6 +58,7 @@
 
             <include layout="@layout/media_buttons"/>
         </LinearLayout>
+
 
         <LinearLayout
             a:layout_height="wrap_content"
@@ -75,5 +79,6 @@
         </LinearLayout>
 
     </RelativeLayout>
+
 
 </LinearLayout>

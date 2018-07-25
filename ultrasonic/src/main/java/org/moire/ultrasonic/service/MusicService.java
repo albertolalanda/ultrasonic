@@ -21,6 +21,7 @@ package org.moire.ultrasonic.service;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import org.moire.ultrasonic.api.subsonic.models.LastIdUser;
 import org.moire.ultrasonic.domain.Bookmark;
 import org.moire.ultrasonic.domain.ChatMessage;
 import org.moire.ultrasonic.domain.Genre;
@@ -148,4 +149,14 @@ public interface MusicService
 	Bitmap getAvatar(Context context, String username, int size, boolean saveToFile, boolean highQuality, ProgressListener progressListener) throws Exception;
 
 	MusicDirectory getPodcastEpisodes(String podcastChannelId, Context context, ProgressListener progressListener) throws Exception;
+
+	//LALANDA TIAGO REST
+
+	LastIdUser getLastIdUserQoE(Context context, ProgressListener progressListener) throws Exception;
+
+	boolean setUserInformation(Context context, int id, int age, String gender, String genres, ProgressListener progressListener) throws Exception;
+
+	boolean setCreateRatingQoE(Context context, int numberOfPlaylist, int idUser_MyMusicQoE, int idMediaFile, int idTranscoding, boolean headphones, int rating, ProgressListener progressListener) throws Exception;
+
+	boolean setUpdateRatingQoE(Context context, int numberOfPlaylist, int idUser_MyMusicQoE, int idMediaFile, int idTranscoding, boolean headphones, int rating, ProgressListener progressListener) throws Exception;
 }

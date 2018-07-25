@@ -58,7 +58,7 @@ public final class HelpActivity extends ResultActivity implements OnClickListene
 	private int activePosition = 1;
 	private int menuActiveViewId;
 	View chatMenuItem;
-	View bookmarksMenuItem;
+	//View bookmarksMenuItem;
 	View sharesMenuItem;
 
 	@Override
@@ -79,18 +79,18 @@ public final class HelpActivity extends ResultActivity implements OnClickListene
 		menuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
 		menuDrawer.setMenuView(R.layout.menu_main);
 
-		chatMenuItem = findViewById(R.id.menu_chat);
-		bookmarksMenuItem = findViewById(R.id.menu_bookmarks);
-		sharesMenuItem = findViewById(R.id.menu_shares);
+		//chatMenuItem = findViewById(R.id.menu_chat);
+		//bookmarksMenuItem = findViewById(R.id.menu_bookmarks);
+		//sharesMenuItem = findViewById(R.id.menu_shares);
 		View aboutMenuItem = findViewById(R.id.menu_about);
 
 		findViewById(R.id.menu_home).setOnClickListener(this);
 		findViewById(R.id.menu_browse).setOnClickListener(this);
 		findViewById(R.id.menu_search).setOnClickListener(this);
-		findViewById(R.id.menu_playlists).setOnClickListener(this);
-		sharesMenuItem.setOnClickListener(this);
-		chatMenuItem.setOnClickListener(this);
-		bookmarksMenuItem.setOnClickListener(this);
+		//findViewById(R.id.menu_playlists).setOnClickListener(this);
+		//sharesMenuItem.setOnClickListener(this);
+		//chatMenuItem.setOnClickListener(this);
+		//bookmarksMenuItem.setOnClickListener(this);
 		findViewById(R.id.menu_now_playing).setOnClickListener(this);
 		findViewById(R.id.menu_settings).setOnClickListener(this);
 		aboutMenuItem.setOnClickListener(this);
@@ -155,10 +155,10 @@ public final class HelpActivity extends ResultActivity implements OnClickListene
 	{
 		super.onPostCreate(bundle);
 
-		int visibility = Util.isOffline(this) ? View.GONE : View.VISIBLE;
-		chatMenuItem.setVisibility(visibility);
-		bookmarksMenuItem.setVisibility(visibility);
-		sharesMenuItem.setVisibility(visibility);
+		//int visibility = Util.isOffline(this) ? View.GONE : View.VISIBLE;
+		//chatMenuItem.setVisibility(visibility);
+		//bookmarksMenuItem.setVisibility(visibility);
+		//sharesMenuItem.setVisibility(visibility);
 	}
 
 	@Override
@@ -267,22 +267,22 @@ public final class HelpActivity extends ResultActivity implements OnClickListene
 				intent.putExtra(Constants.INTENT_EXTRA_REQUEST_SEARCH, true);
 				startActivityForResultWithoutTransition(this, intent);
 				break;
-			case R.id.menu_playlists:
-				intent = new Intent(this, SelectPlaylistActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivityForResultWithoutTransition(this, intent);
-				break;
-			case R.id.menu_shares:
-				intent = new Intent(this, ShareActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivityForResultWithoutTransition(this, intent);
-				break;
-			case R.id.menu_chat:
-				startActivityForResultWithoutTransition(this, ChatActivity.class);
-				break;
-			case R.id.menu_bookmarks:
-				startActivityForResultWithoutTransition(this, BookmarkActivity.class);
-				break;
+//			case R.id.menu_playlists:
+//				intent = new Intent(this, SelectPlaylistActivity.class);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//				startActivityForResultWithoutTransition(this, intent);
+//				break;
+//			case R.id.menu_shares:
+//				intent = new Intent(this, ShareActivity.class);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//				startActivityForResultWithoutTransition(this, intent);
+//				break;
+//			case R.id.menu_chat:
+//				startActivityForResultWithoutTransition(this, ChatActivity.class);
+//				break;
+//			case R.id.menu_bookmarks:
+//				startActivityForResultWithoutTransition(this, BookmarkActivity.class);
+//				break;
 			case R.id.menu_now_playing:
 				startActivityForResultWithoutTransition(this, DownloadActivity.class);
 				break;

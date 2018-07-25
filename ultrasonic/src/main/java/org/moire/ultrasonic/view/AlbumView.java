@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import org.moire.ultrasonic.R;
 import org.moire.ultrasonic.domain.MusicDirectory;
 import org.moire.ultrasonic.service.MusicService;
@@ -40,8 +41,8 @@ import org.moire.ultrasonic.util.Util;
 public class AlbumView extends UpdateView
 {
 	private static final String TAG = AlbumView.class.getSimpleName();
-	private static Drawable starDrawable;
-	private static Drawable starHollowDrawable;
+	//private static Drawable starDrawable;
+	//private static Drawable starHollowDrawable;
 	private static String theme;
 
 	private Context context;
@@ -57,10 +58,10 @@ public class AlbumView extends UpdateView
 		this.imageLoader = imageLoader;
 
 		String theme = Util.getTheme(context);
-		boolean themesMatch = theme.equals(AlbumView.theme);
+		//boolean themesMatch = theme.equals(AlbumView.theme);
 		AlbumView.theme = theme;
 
-		if (starHollowDrawable == null || !themesMatch)
+		/*if (starHollowDrawable == null || !themesMatch)
 		{
 			starHollowDrawable = Util.getDrawableFromAttribute(context, R.attr.star_hollow);
 		}
@@ -68,7 +69,7 @@ public class AlbumView extends UpdateView
 		if (starDrawable == null || !themesMatch)
 		{
 			starDrawable = Util.getDrawableFromAttribute(context, R.attr.star_full);
-		}
+		}*/
 	}
 
 	public void setLayout()
@@ -78,7 +79,7 @@ public class AlbumView extends UpdateView
 		viewHolder.title = (TextView) findViewById(R.id.album_title);
 		viewHolder.artist = (TextView) findViewById(R.id.album_artist);
 		viewHolder.cover_art = (ImageView) findViewById(R.id.album_coverart);
-		viewHolder.star = (ImageView) findViewById(R.id.album_star);
+		//viewHolder.star = (ImageView) findViewById(R.id.album_star);
 		setTag(viewHolder);
 	}
 
@@ -120,14 +121,14 @@ public class AlbumView extends UpdateView
 
 		String title = album.getTitle();
 		String artist = album.getArtist();
-		boolean starred = album.getStarred();
+		//boolean starred = album.getStarred();
 
 		viewHolder.title.setText(title);
 		viewHolder.artist.setText(artist);
 		viewHolder.artist.setVisibility(artist == null ? View.GONE : View.VISIBLE);
-		viewHolder.star.setImageDrawable(starred ? starDrawable : starHollowDrawable);
+		//viewHolder.star.setImageDrawable(starred ? starDrawable : starHollowDrawable);
 
-		if (Util.isOffline(this.context) || "-1".equals(album.getId()))
+		/*if (Util.isOffline(this.context) || "-1".equals(album.getId()))
 		{
 			viewHolder.star.setVisibility(View.GONE);
 		}
@@ -179,6 +180,6 @@ public class AlbumView extends UpdateView
 					}).start();
 				}
 			});
-		}
+		}*/
 	}
 }

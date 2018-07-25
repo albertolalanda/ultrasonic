@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    a:layout_width="fill_parent"
+    a:layout_height="fill_parent"
+    a:orientation="vertical">
+
+    <TextView
+        a:id="@+id/text_view_rating_questiontext"
+        a:layout_width="match_parent"
+        a:layout_height="wrap_content"
+        a:layout_marginBottom="7dp"
+        a:layout_marginTop="7dp"
+        a:gravity="center"
+        a:text="como foi a qualidade de áudio ?"
+        a:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <RelativeLayout
+        a:layout_width="fill_parent"
+        a:layout_height="fill_parent"
+        a:background="@color/grey_rating_bar_unselected"
+        a:clickable="false"
+        a:orientation="horizontal">
+
+
+        <LinearLayout
+            a:id="@+id/rating_separators"
+            a:layout_width="wrap_content"
+            a:layout_height="match_parent"
+            a:layout_alignParentLeft="true"
+            a:layout_centerVertical="true"
+            a:layout_weight="1"
+            a:orientation="vertical"
+            a:paddingBottom="15dp"
+            a:paddingTop="15dp">
+
+            <LinearLayout
+                a:id="@+id/rating_separator_excellent_button"
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:onClick="excellentButton"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:id="@+id/rating_separator_excellent_text"
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Excellent"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:id="@+id/rating_separator_good_button"
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:onClick="goodButton"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:id="@+id/rating_separator_good_text"
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Good"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:id="@+id/rating_separator_fair_button"
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:onClick="fairButton"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:id="@+id/rating_separator_fair_text"
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Fair"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:id="@+id/rating_separator_poor_button"
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:onClick="poorButton"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:id="@+id/rating_separator_poor_text"
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Poor"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:id="@+id/rating_separator_bad_button"
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:onClick="badButton"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:id="@+id/rating_separator_bad_text"
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Bad"
+                    a:textSize="30sp" />
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <!--<LinearLayout-->
+        <!--a:layout_width="match_parent"-->
+        <!--a:layout_height="match_parent"-->
+        <!--a:layout_weight="1"-->
+        <!--a:orientation="vertical">-->
+
+
+        <!--<ImageView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="0dp"-->
+        <!--app:layout_constraintDimensionRatio="1:1" />-->
+
+        <android.support.constraint.ConstraintLayout
+            a:layout_width="match_parent"
+            a:layout_height="match_parent"
+            a:layout_weight="1">
+
+            <LinearLayout
+                a:id="@+id/tickSeekBarParent"
+                a:layout_width="0dp"
+                a:layout_height="match_parent"
+                a:layout_weight="1"
+                a:orientation="vertical"
+                app:layout_constraintDimensionRatio="1:1">
+
+                <View
+                    a:id="@+id/text_view_seekbar_space_top"
+                    a:layout_width="match_parent"
+                    a:layout_height="wrap_content"
+                    a:layout_weight="1" />
+
+                <SeekBar
+                    a:id="@+id/tickSeekBar"
+                    a:layout_width="match_parent"
+                    a:layout_height="wrap_content"
+
+                    a:layout_gravity="end"
+                    a:paddingBottom="15dp"
+                    a:paddingTop="15dp"
+                    a:progressDrawable="@drawable/rating_seekbar_style"
+                    a:rotation="270"
+                    a:thumb="@drawable/rating_seekbar_thumb" />
+
+                <View
+                    a:id="@+id/text_view_seekbar_space_bottom"
+                    a:layout_width="match_parent"
+                    a:layout_height="wrap_content"
+                    a:layout_weight="1" />
+
+            </LinearLayout>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <!--tick makes it discrete. no good-->
+        <!--a:tickMark="@drawable/rating_seekbar_tick"-->
+        <!--a:max="5"-->
+
+        <!--</LinearLayout>-->
+
+        <android.support.constraint.ConstraintLayout
+            a:layout_width="match_parent"
+            a:layout_height="match_parent"
+            a:layout_weight="1"
+            >
+
+            <LinearLayout
+                a:layout_width="0dp"
+                a:layout_height="match_parent"
+                app:layout_constraintDimensionRatio="1:1"
+                a:layout_weight="1"
+                a:orientation="vertical">
+
+
+                <TextView
+                    a:id="@+id/seekbar_current_rating"
+                    a:layout_width="match_parent"
+                    a:layout_height="match_parent"
+                    a:layout_gravity="end"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical|center_horizontal"
+                    a:paddingLeft="150dp"
+                    a:textSize="50dp" />
+
+
+            </LinearLayout>
+
+        </android.support.constraint.ConstraintLayout>
+
+
+
+    </RelativeLayout>
+
+</LinearLayout>

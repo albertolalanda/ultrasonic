@@ -145,7 +145,7 @@ public class SongView extends UpdateView implements Checkable
 		return this.song;
 	}
 
-	protected void setSong(final Entry song, boolean checkable, boolean draggable)
+	protected void setSong(final Entry song, boolean checkable, boolean draggable, boolean starable)
 	{
 		updateBackground();
 
@@ -158,12 +158,13 @@ public class SongView extends UpdateView implements Checkable
 
 		StringBuilder artist = new StringBuilder(60);
 
-		String bitRate = null;
+		//LALANDA not needed bitrate
+		/*String bitRate = null;
 
 		if (song.getBitRate() != null)
 		{
 			bitRate = String.format(this.context.getString(R.string.song_details_kbps), song.getBitRate());
-		}
+		}*/
 
 		String fileFormat;
 		String suffix = song.getSuffix();
@@ -178,14 +179,15 @@ public class SongView extends UpdateView implements Checkable
 
 		if (artistName != null)
 		{
-			if (Util.shouldDisplayBitrateWithArtist(this.context))
-			{
-				artist.append(artistName).append(" (").append(String.format(this.context.getString(R.string.song_details_all), bitRate == null ? "" : String.format("%s ", bitRate), fileFormat)).append(')');
-			}
-			else
-			{
+			//LALANDA TO NEVER DISPLAY BITRATE. THE VALUES WERE WRONG ANYWAY
+//			if (Util.shouldDisplayBitrateWithArtist(this.context))
+//			{
+//				artist.append(artistName).append(" (").append(String.format(this.context.getString(R.string.song_details_all), bitRate == null ? "" : String.format("%s ", bitRate), fileFormat)).append(')');
+//			}
+//			else
+//			{
 				artist.append(artistName);
-			}
+//			}
 		}
 
 		int trackNumber = (song.getTrack() == null) ? 0 : song.getTrack();
@@ -205,10 +207,10 @@ public class SongView extends UpdateView implements Checkable
 		StringBuilder title = new StringBuilder(60);
 		title.append(song.getTitle());
 
-		if (song.isVideo() && Util.shouldDisplayBitrateWithArtist(this.context))
+		/*if (song.isVideo() && Util.shouldDisplayBitrateWithArtist(this.context))
 		{
 			title.append(" (").append(String.format(this.context.getString(R.string.song_details_all), bitRate == null ? "" : String.format("%s ", bitRate), fileFormat)).append(')');
-		}
+		}*/
 
 		viewHolder.title.setText(title);
 
@@ -234,59 +236,11 @@ public class SongView extends UpdateView implements Checkable
 			viewHolder.drag.setVisibility(draggable ? View.VISIBLE : View.GONE);
 		}
 
-		if (Util.isOffline(this.context))
+		if (viewHolder.star != null)
 		{
-			viewHolder.star.setVisibility(View.GONE);
-		}
-		else
-		{
-			viewHolder.star.setImageDrawable(song.getStarred() ? starDrawable : starHollowDrawable);
-
-			viewHolder.star.setOnClickListener(new View.OnClickListener()
-			{
-				@Override
-				public void onClick(View view)
-				{
-					final boolean isStarred = song.getStarred();
-					final String id = song.getId();
-
-					if (!isStarred)
-					{
-						viewHolder.star.setImageDrawable(starDrawable);
-						song.setStarred(true);
-					}
-					else
-					{
-						viewHolder.star.setImageDrawable(starHollowDrawable);
-						song.setStarred(false);
-					}
-
-					new Thread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							MusicService musicService = MusicServiceFactory.getMusicService(SongView.this.context);
-
-							try
-							{
-								if (!isStarred)
-								{
-									musicService.star(id, null, null, SongView.this.context, null);
-								}
-								else
-								{
-									musicService.unstar(id, null, null, SongView.this.context, null);
-								}
-							}
-							catch (Exception e)
-							{
-								Log.e(TAG, e.getMessage(), e);
-							}
-						}
-					}).start();
-				}
-			});
+			viewHolder.star.setVisibility(starable ? View.VISIBLE : View.GONE);
+            //MyMusicQoE list item is rated ? Following LINE MAY BE USEFULL TO CHECK IF THE LIST OF RATINGS IS BEING CLEARD. CAN BE DELETED OTHERWISE
+            viewHolder.star.setImageDrawable(downloadService.forSongGetIsRated(this.song) ? starDrawable : starHollowDrawable);
 		}
 
 		update();
@@ -373,7 +327,13 @@ public class SongView extends UpdateView implements Checkable
 			}
 		}
 
-		if (!song.getStarred())
+		//MyMusicQoE list item is rated
+		if (viewHolder.star != null)
+		{
+			viewHolder.star.setImageDrawable(downloadService.forSongGetIsRated(this.song) ? starDrawable : starHollowDrawable);
+		}
+
+		/*if (!song.getStarred())
 		{
 			if (viewHolder.star != null)
 			{
@@ -392,7 +352,7 @@ public class SongView extends UpdateView implements Checkable
 					viewHolder.star.setImageDrawable(starDrawable);
 				}
 			}
-		}
+		}*/
 
 		boolean playing = downloadService.getCurrentPlaying() == downloadFile;
 

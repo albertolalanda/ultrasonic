@@ -21,16 +21,17 @@ package org.moire.ultrasonic.service;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.jetbrains.annotations.Nullable;
 import org.moire.ultrasonic.R;
 import org.moire.ultrasonic.api.subsonic.ApiNotSupportedException;
 import org.moire.ultrasonic.api.subsonic.SubsonicAPIClient;
 import org.moire.ultrasonic.api.subsonic.models.AlbumListType;
 import org.moire.ultrasonic.api.subsonic.models.JukeboxAction;
+import org.moire.ultrasonic.api.subsonic.models.LastIdUser;
 import org.moire.ultrasonic.api.subsonic.models.MusicDirectoryChild;
 import org.moire.ultrasonic.api.subsonic.response.BookmarksResponse;
 import org.moire.ultrasonic.api.subsonic.response.ChatMessagesResponse;
@@ -50,6 +51,7 @@ import org.moire.ultrasonic.api.subsonic.response.GetRandomSongsResponse;
 import org.moire.ultrasonic.api.subsonic.response.GetSongsByGenreResponse;
 import org.moire.ultrasonic.api.subsonic.response.GetStarredResponse;
 import org.moire.ultrasonic.api.subsonic.response.GetStarredTwoResponse;
+import org.moire.ultrasonic.api.subsonic.response.GetUserLastIdResponse;
 import org.moire.ultrasonic.api.subsonic.response.GetUserResponse;
 import org.moire.ultrasonic.api.subsonic.response.JukeboxResponse;
 import org.moire.ultrasonic.api.subsonic.response.LicenseResponse;
@@ -686,8 +688,13 @@ public class RESTMusicService implements MusicService {
             throw new IllegalArgumentException("Song for download is null!");
         }
         long songOffset = offset < 0 ? 0 : offset;
+        /*
+        int transcoderNumIndex = ThreadLocalRandom.current().nextInt(0, applicableTranscodings.size());
+        song.setTranscoderNum(applicableTranscodings[transcoderNumIndex]);
+        */
 
-        StreamResponse response = subsonicAPIClient.stream(song.getId(), maxBitrate, songOffset);
+        StreamResponse response = subsonicAPIClient.stream(song.getId(), maxBitrate, song.getTranscoderNum(),songOffset);
+        System.out.println("TIAGO: song.getId() "+song.getId());
         checkStreamResponseError(response);
         if (response.getStream() == null) {
             throw new IOException("Null stream response");
@@ -1059,6 +1066,48 @@ public class RESTMusicService implements MusicService {
             throw new SubsonicRESTException(response.body().getError());
         } else {
             throw new IOException("Failed to perform request: " + response.code());
+        }
+    }
+
+    //LALANDA TIAGO REST
+
+    public LastIdUser getLastIdUserQoE(Context context, ProgressListener progressListener) throws Exception {
+        updateProgressListener(progressListener, R.string.parser_reading);
+        Response<GetUserLastIdResponse> response = subsonicAPIClient.getApi().getLastIdUserQoE().execute();
+        checkResponseSuccessful(response);
+        return response.body().getLastIdUser();
+    }
+
+    public boolean setUserInformation(Context context, int id, int age, String gender, String genres, ProgressListener progressListener) throws Exception {
+        updateProgressListener(progressListener, R.string.parser_reading);
+        Response<SubsonicResponse> response = subsonicAPIClient.getApi().createUserQoE(id, age, gender,genres).execute();
+        checkResponseSuccessful(response);
+        if (response.body().getStatus() == SubsonicResponse.Status.OK && response.isSuccessful()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean setCreateRatingQoE(Context context, int numberOfPlaylist, int idUser_MyMusicQoE, int idMediaFile, int idTranscoding, boolean headphones, int rating, ProgressListener progressListener) throws Exception {
+        updateProgressListener(progressListener, R.string.parser_reading);
+        Response<SubsonicResponse> response = subsonicAPIClient.getApi().createRatingQoE(numberOfPlaylist, idUser_MyMusicQoE, idMediaFile, idTranscoding, headphones, rating).execute();
+        checkResponseSuccessful(response);
+        if (response.body().getStatus() == SubsonicResponse.Status.OK && response.isSuccessful()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean setUpdateRatingQoE(Context context, int numberOfPlaylist, int idUser_MyMusicQoE, int idMediaFile, int idTranscoding, boolean headphones, int rating, ProgressListener progressListener) throws Exception {
+        updateProgressListener(progressListener, R.string.parser_reading);
+        Response<SubsonicResponse> response = subsonicAPIClient.getApi().updateRatingQoE(numberOfPlaylist, idUser_MyMusicQoE, idMediaFile, idTranscoding, headphones, rating).execute();
+        checkResponseSuccessful(response);
+        if (response.body().getStatus() == SubsonicResponse.Status.OK && response.isSuccessful()){
+            return true;
+        }else{
+            return false;
         }
     }
 }

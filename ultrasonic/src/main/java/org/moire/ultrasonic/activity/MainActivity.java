@@ -19,9 +19,12 @@
 
 package org.moire.ultrasonic.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -34,11 +37,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.moire.ultrasonic.R;
+import org.moire.ultrasonic.fragment.ServerSettingsFragment;
+import org.moire.ultrasonic.fragment.SettingsFragment;
 import org.moire.ultrasonic.service.DownloadService;
 import org.moire.ultrasonic.service.DownloadServiceImpl;
 import org.moire.ultrasonic.service.MusicService;
 import org.moire.ultrasonic.service.MusicServiceFactory;
 import org.moire.ultrasonic.util.Constants;
+import org.moire.ultrasonic.util.ErrorDialog;
 import org.moire.ultrasonic.util.FileUtil;
 import org.moire.ultrasonic.util.MergeAdapter;
 import org.moire.ultrasonic.util.TabActivityBackgroundTask;
@@ -50,7 +56,6 @@ import static java.util.Arrays.asList;
 
 public class MainActivity extends SubsonicTabActivity
 {
-
 	private static final int MENU_GROUP_SERVER = 10;
 	private static final int MENU_ITEM_OFFLINE = 111;
 	private static final int MENU_ITEM_SERVER_1 = 101;
@@ -66,6 +71,12 @@ public class MainActivity extends SubsonicTabActivity
 
 	private static boolean infoDialogDisplayed;
 	private static boolean shouldUseId3;
+
+	//LALANDA
+	private SharedPreferences settings;
+	private PreferenceCategory serversCategory;
+	//
+	private SharedPreferences sharedPreferences;
 
 	/**
 	 * Called when the activity is first created.
@@ -99,13 +110,13 @@ public class MainActivity extends SubsonicTabActivity
 		loadSettings();
 
 		final View buttons = LayoutInflater.from(this).inflate(R.layout.main_buttons, null);
-		final View serverButton = buttons.findViewById(R.id.main_select_server);
-		final TextView serverTextView = (TextView) serverButton.findViewById(R.id.main_select_server_2);
+		//final View serverButton = buttons.findViewById(R.id.main_select_server);
+		//final TextView serverTextView = (TextView) serverButton.findViewById(R.id.main_select_server_2);
 		final View musicTitle = buttons.findViewById(R.id.main_music);
 		final View artistsButton = buttons.findViewById(R.id.main_artists_button);
 		final View albumsButton = buttons.findViewById(R.id.main_albums_button);
 		final View genresButton = buttons.findViewById(R.id.main_genres_button);
-		final View videosTitle = buttons.findViewById(R.id.main_videos_title);
+		//final View videosTitle = buttons.findViewById(R.id.main_videos_title);
 		final View songsTitle = buttons.findViewById(R.id.main_songs);
 		final View randomSongsButton = buttons.findViewById(R.id.main_songs_button);
 		final View songsStarredButton = buttons.findViewById(R.id.main_songs_starred);
@@ -118,10 +129,13 @@ public class MainActivity extends SubsonicTabActivity
 		final View albumsFrequentButton = buttons.findViewById(R.id.main_albums_frequent);
 		final View albumsAlphaByNameButton = buttons.findViewById(R.id.main_albums_alphaByName);
 		final View albumsAlphaByArtistButton = buttons.findViewById(R.id.main_albums_alphaByArtist);
-		final View videosButton = buttons.findViewById(R.id.main_videos);
+		//final View videosButton = buttons.findViewById(R.id.main_videos);
 		final View dummyView = findViewById(R.id.main_dummy);
 
 		boolean shouldShowDialog = false;
+
+		//LALANDA HERE WE CAN CHANGE TO ALWAYS SHOW DIALOG
+		//shouldShowDialog = true;
 
 		if (!getActiveServerEnabled())
 		{
@@ -132,20 +146,27 @@ public class MainActivity extends SubsonicTabActivity
 		int instance = Util.getActiveServer(this);
 		String name = Util.getServerName(this, instance);
 
+		//set my music qoe server
+		//Util.setUserAndroidAPILevel(this);
+		Util.setMyMusicQoEServer(this, 0);
+		//
+
 		if (name == null)
 		{
 			shouldShowDialog = true;
-			Util.setActiveServer(this, 0);
+			Util.setActiveServer(this, 1);
 			instance = Util.getActiveServer(this);
-			name = Util.getServerName(this, instance);
+			//name = Util.getServerName(this, instance);
+
 		}
 
-		serverTextView.setText(name);
+		//serverTextView.setText(name);
+
 
 		final ListView list = (ListView) findViewById(R.id.main_list);
 
 		final MergeAdapter adapter = new MergeAdapter();
-		adapter.addViews(Collections.singletonList(serverButton), true);
+		//adapter.addViews(Collections.singletonList(serverButton), true);
 
 		if (!Util.isOffline(this))
 		{
@@ -166,8 +187,8 @@ public class MainActivity extends SubsonicTabActivity
 				adapter.addViews(asList(albumsNewestButton, albumsRecentButton, albumsFrequentButton, albumsHighestButton, albumsRandomButton, albumsStarredButton, albumsAlphaByNameButton, albumsAlphaByArtistButton), true);
 			}
 
-			adapter.addView(videosTitle, false);
-			adapter.addViews(Collections.singletonList(videosButton), true);
+			//adapter.addView(videosTitle, false);
+			//adapter.addViews(Collections.singletonList(videosButton), true);
 
             if (Util.isNetworkConnected(this)) {
                 new PingTask(this, false).execute();
@@ -182,11 +203,12 @@ public class MainActivity extends SubsonicTabActivity
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
-				if (view == serverButton)
-				{
-					dummyView.showContextMenu();
-				}
-				else if (view == albumsNewestButton)
+//				if (view == serverButton)
+//				{
+//					dummyView.showContextMenu();
+//				}
+//				else
+				if (view == albumsNewestButton)
 				{
 					showAlbumList("newest", R.string.main_albums_newest);
 				}
@@ -238,10 +260,10 @@ public class MainActivity extends SubsonicTabActivity
 				{
 					showGenres();
 				}
-				else if (view == videosButton)
+				/*else if (view == videosButton)
 				{
 					showVideos();
-				}
+				}*/
 			}
 		});
 
@@ -254,7 +276,10 @@ public class MainActivity extends SubsonicTabActivity
 		// Remember the current theme.
 		theme = Util.getTheme(this);
 
-		showInfoDialog(shouldShowDialog);
+		//showInfoDialog(shouldShowDialog);
+		if (!Util.isUserInfoSent(MainActivity.this) && shouldShowDialog){
+			showInfoDialog(true);
+		}
 	}
 
 	private void loadSettings()
@@ -355,7 +380,12 @@ public class MainActivity extends SubsonicTabActivity
 			}
 		}
 
-		return activeServerEnabled;
+		if (activeServerEnabled && Util.getUserId(this) != 0){
+			return activeServerEnabled;
+		}else{
+			activeServerEnabled = false;
+			return activeServerEnabled;
+		}
 	}
 
 	private static int getMenuItem(final int serverInstance)
@@ -481,17 +511,18 @@ public class MainActivity extends SubsonicTabActivity
 		finish();
 	}
 
+	//LALANDA WELCOME TO ULTRASONIC BOX
 	private void showInfoDialog(final boolean show)
 	{
-		if (!infoDialogDisplayed)
+		/*if (!infoDialogDisplayed)
 		{
-			infoDialogDisplayed = true;
+			infoDialogDisplayed = true;*/
 
 			if (show || Util.getRestUrl(this, null).contains("yourhost"))
 			{
 				Util.showWelcomeDialog(this, this, R.string.main_welcome_title, R.string.main_welcome_text);
 			}
-		}
+		//}
 	}
 
 	private void showAlbumList(final String type, final int title)
@@ -534,12 +565,12 @@ public class MainActivity extends SubsonicTabActivity
 		startActivityForResultWithoutTransition(this, intent);
 	}
 
-	private void showVideos()
+	/*private void showVideos()
 	{
 		final Intent intent = new Intent(this, SelectAlbumActivity.class);
 		intent.putExtra(Constants.INTENT_EXTRA_NAME_VIDEOS, 1);
 		startActivityForResultWithoutTransition(this, intent);
-	}
+	}*/
 
     /**
      * Temporary task to make a ping to server to get it supported api version.

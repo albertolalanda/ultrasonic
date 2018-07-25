@@ -1,0 +1,246 @@
+ 
+ <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    a:layout_width="fill_parent"
+    a:layout_height="fill_parent"
+    a:orientation="vertical">
+
+    <TextView
+        a:id="@+id/text_view_rating_questiontext"
+        a:layout_width="match_parent"
+        a:layout_height="wrap_content"
+        a:layout_marginBottom="15dp"
+        a:layout_marginTop="15dp"
+        a:gravity="center"
+        a:text="como foi a qualidade de áudio ?"
+        a:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <RelativeLayout
+        a:layout_width="fill_parent"
+        a:layout_height="fill_parent"
+        a:background="@color/grey_rating_bar_unselected"
+        a:clickable="false"
+        a:orientation="horizontal">
+
+
+        <LinearLayout
+            a:id="@+id/rating_separators"
+            a:layout_width="wrap_content"
+            a:layout_height="300dp"
+            a:layout_alignParentLeft="true"
+            a:layout_centerVertical="true"
+            a:layout_weight="1"
+            a:orientation="vertical"
+            a:paddingBottom="15dp"
+            a:paddingTop="15dp">
+
+            <LinearLayout
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Excellent"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Good"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Fair"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Poor"
+                    a:textSize="30sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                a:layout_width="wrap_content"
+                a:layout_height="fill_parent"
+                a:layout_marginLeft="5dp"
+                a:layout_weight="1"
+                a:orientation="vertical">
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+
+                <TextView
+                    a:layout_width="wrap_content"
+                    a:layout_height="fill_parent"
+                    a:layout_weight="1"
+                    a:gravity="center_vertical"
+                    a:text="Bad"
+                    a:textSize="30sp" />
+
+                <include
+                    layout="@layout/horizontal_divider"
+                    a:layout_width="130dp"
+                    a:layout_height="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+            <LinearLayout
+                a:layout_width="fill_parent"
+                a:layout_height="match_parent"
+                a:layout_weight="1"
+                a:orientation="vertical">
+
+                <View
+                    a:id="@+id/text_view_seekbar_space_top"
+                    a:layout_width="match_parent"
+                    a:layout_height="wrap_content"
+                    a:layout_weight="1" />
+
+                <!--LALANDA TODO-->
+
+                <!--<ImageView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="0dp"-->
+                <!--app:layout_constraintDimensionRatio="1:1" />-->
+
+               
+
+                <SeekBar
+                    a:id="@+id/tickSeekBar"
+                    a:layout_width="300dp"
+                    a:layout_height="wrap_content"
+                    a:layout_gravity="right"
+                    a:paddingBottom="15dp"
+                    a:paddingTop="15dp"
+                    a:progressDrawable="@drawable/rating_seekbar_style"
+                    a:rotation="270"
+                    a:thumb="@drawable/rating_seekbar_thumb" />
+
+                <!--android:progressDrawable="@drawable/progress"-->
+                <!--android:thumb="@drawable/thumb" >-->
+
+                <!--<com.warkiz.tickseekbar.TickSeekBar-->
+                <!--a:id="@+id/tickSeekBar"-->
+                <!--a:layout_width="fill_parent"-->
+                <!--a:layout_height="match_parent"-->
+                <!--a:layout_gravity="right"-->
+                <!--a:paddingBottom="8dp"-->
+                <!--a:paddingEnd="0dp"-->
+                <!--a:paddingStart="0dp"-->
+                <!--a:paddingTop="8dp"-->
+                <!--a:rotation="270"-->
+                <!--a:scaleType="fitXY"-->
+                <!--app:tsb_clear_default_padding="true"-->
+                <!--app:tsb_max="100"-->
+                <!--app:tsb_min="0"-->
+                <!--app:tsb_seek_smoothly="true"-->
+                <!--app:tsb_show_tick_marks_type="divider"-->
+                <!--app:tsb_tick_marks_color="@color/accent_material_dark"-->
+                <!--app:tsb_tick_marks_size="2dp"-->
+                <!--app:tsb_ticks_count="6"-->
+                <!--app:tsb_track_background_color="@color/cyan"-->
+                <!--app:tsb_track_background_size="15dp"-->
+                <!--app:tsb_track_progress_color="@color/error_color"-->
+                <!--app:tsb_track_progress_size="15dp" />-->
+
+                <!--app:tsb_thumb_drawable="@drawable/thumb_drawable"-->
+                <!--app:tsb_thumb_color="@color/accent_material_light"-->
+                <!--app:tsb_thumb_size="30dp"-->
+                <View
+                    a:id="@+id/text_view_seekbar_space_bottom"
+                    a:layout_width="match_parent"
+                    a:layout_height="wrap_content"
+                    a:layout_weight="1" />
+            </LinearLayout>
+
+
+
+
+
+        <LinearLayout
+            a:layout_width="300dp"
+            a:layout_height="370dp"
+            a:layout_centerVertical="true"
+            a:layout_gravity="right"
+            a:orientation="vertical"
+            a:layout_alignParentRight="true">
+
+            <TextView
+                a:layout_width="match_parent"
+                a:layout_height="match_parent"
+                a:layout_weight="1"
+                a:gravity="center_horizontal"
+                a:text="100"
+                a:textSize="30sp"
+                a:background="@drawable/rating_seekbar_text_background"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

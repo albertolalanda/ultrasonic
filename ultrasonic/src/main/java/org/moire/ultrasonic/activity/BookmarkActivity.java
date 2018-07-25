@@ -181,8 +181,8 @@ public class BookmarkActivity extends SubsonicTabActivity
 
 		enableButtons();
 
-		View browseMenuItem = findViewById(R.id.menu_bookmarks);
-		menuDrawer.setActiveView(browseMenuItem);
+//		View browseMenuItem = findViewById(R.id.menu_bookmarks);
+//		menuDrawer.setActiveView(browseMenuItem);
 
 		getBookmarks();
 	}
@@ -371,6 +371,7 @@ public class BookmarkActivity extends SubsonicTabActivity
 		checkLicenseAndTrialPeriod(onValid);
 	}
 
+	//LALANDA FUNCTION TO DELETE MUSIC FROM CACHE
 	private void delete()
 	{
 		List<MusicDirectory.Entry> songs = getSelectedSongs(albumListView);

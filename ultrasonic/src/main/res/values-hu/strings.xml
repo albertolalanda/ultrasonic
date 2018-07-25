@@ -20,7 +20,7 @@
     <string name="button_bar.playlists">Lejátszási listák</string>
     <string name="button_bar.search">Keresés</string>
     <string name="chat.send_a_message">Üzenet küldése</string>
-    <string name="common.appname">UltraSonic</string>
+    <string name="common.appname">MyMusicQoE</string>
     <string name="common.cancel">Mégse</string>
     <string name="common.comment">Megjegyzés</string>
     <string name="common.confirm">Jóváhagyás</string>
@@ -100,8 +100,8 @@
     <string name="main.songs_starred">Csillaggal megjelölt</string>
     <string name="main.songs_title">Dalok</string>
     <string name="main.videos">Videók</string>
-    <string name="main.welcome_text">Üdvözli az UltraSonic! Az alkalmazás még nincs beállítva. Miután konfigurálta saját kiszolgálóját (elérhető: <b>subsonic.org</b>), húzza balról jobbra az oldalsávot, lépjen be a <b>Beállítások</b> menüpontba, és adja meg csatlakozási adatokat!</string>
-    <string name="main.welcome_title">Üdvözlet!</string>
+    <string name="main.welcome_text">TODO Üdvözli az UltraSonic! Az alkalmazás még nincs beállítva. Miután konfigurálta saját kiszolgálóját (elérhető: <b>subsonic.org</b>), húzza balról jobbra az oldalsávot, lépjen be a <b>Beállítások</b> menüpontba, és adja meg csatlakozási adatokat!</string>
+    <string name="main.welcome_title">Üdvözlet! TODO</string>
     <string name="menu.about">Névjegy</string>
     <string name="menu.common">Általános</string>
     <string name="menu.deleted_playlist">Törölt lejátszási lista %s</string>
@@ -109,6 +109,7 @@
     <string name="menu.exit">Kilépés</string>
     <string name="menu.navigation">Navigáció</string>
     <string name="menu.settings">Beállítások</string>
+    <string name="menu.userinf">User Information</string>
     <string name="music_library.label">Mediakönyvtár</string>
     <string name="music_library.label_offline">Kapcsolat nélküli médiák</string>
     <string name="music_service.retry">Hálózati hiba történt! Újrapróbálkozás %1$d - %2$d.</string>
@@ -436,10 +437,5 @@
     <string name="api.subsonic.trial_period_is_over">A próbaidő vége.</string>
     <string name="api.subsonic.upgrade_client">Nem kompatibilis verzió. Kérjük, frissítse az UltraSonic Android alkalmazást!</string>
     <string name="api.subsonic.upgrade_server">Nem kompatibilis verzió. Kérjük, frissítse a Subsonic kiszolgálót!</string>
-    <string name="feature_flags_image_loader_description">Engedélyezi az új képbetöltő megvalósítását. Jelenleg nem
-        tárolja a képet az eszköz tárolójában, és csak a memóriában tárolja a gyorsítótárat.
-    </string>
-    <string name="feature_flags_category_title">Jellemzők Zászlók</string>
-    <string name="feature_flags_image_loader_title">Engedélyezzen új képbetöltőt</string>
 
 </resources>
